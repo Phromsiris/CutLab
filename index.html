@@ -4,1840 +4,1338 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CutLab — คลังสื่อดิจิทัลเพื่อการตัดต่อ</title>
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts: Prompt & Space Grotesk -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
-
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Prompt', 'sans-serif'],
-            display: ['Space Grotesk', 'Prompt', 'sans-serif'],
-          },
-          colors: {
-            cream: '#FAF6EE',
-            cardbg: '#FFFDF9',
-            mustard: '#F5B82E',
-            mustardDark: '#DF9F14',
-            espresso: '#2B2118',
-            cocoa: '#6E5D4F',
-            sand: '#EFE6D5',
-            pastelBlue: '#DCEEFF',
-            pastelYellow: '#FFF0C2',
-            pastelPeach: '#FFE1D2',
-            pastelMint: '#D8F5E5',
-            pastelLavender: '#EAE2FF',
-            pastelPink: '#FFE0EC',
-          },
-          boxShadow: {
-            soft: '0 10px 30px -10px rgba(43, 33, 24, 0.08)',
-            hover: '0 18px 36px -12px rgba(43, 33, 24, 0.14)',
-          }
-        }
-      }
-    };
-  </script>
-
   <style>
-    body {
-      background-color: #FAF6EE;
-      color: #2B2118;
-      font-family: 'Prompt', sans-serif;
-      overflow-x: hidden;
+    :root {
+      --bg: #FAF6EE;
+      --surface: #FFFDF9;
+      --ink: #2B2118;
+      --muted: #6E5D4F;
+      --accent: #F5B82E;
+      --accent-dark: #D99B16;
+      --border: #2B2118;
+      --radius-lg: 24px;
+      --radius-md: 16px;
+      --shadow: 0 6px 0 #2B2118;
+      --shadow-sm: 0 4px 0 #2B2118;
     }
 
-    /* Checkerboard pattern for transparency inspection */
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Noto Sans Thai", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* คืนเคอร์เซอร์ปกติในโหมดหน้าแยกหมวด หรือบนอุปกรณ์สัมผัส */
+    body.subpage-mode,
+    @media (hover: none) {
+      body {
+        cursor: auto;
+      }
+      #camera-cursor {
+        display: none !important;
+      }
+    }
+
+    @media (hover: none) {
+      body {
+        cursor: auto;
+      }
+      #camera-cursor {
+        display: none !important;
+      }
+    }
+
+    /* เคอร์เซอร์ Emoji รูปกล้องในหน้าแรก */
+    #camera-cursor {
+      position: fixed;
+      top: 0;
+      left: 0;
+      font-size: 34px;
+      line-height: 1;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      z-index: 9999;
+      filter: drop-shadow(0 4px 8px rgba(43, 33, 24, 0.22));
+      transition: transform 0.06s ease-out;
+    }
+
+    #camera-cursor.is-clicking {
+      transform: translate(-50%, -50%) scale(0.8) rotate(-14deg);
+    }
+
+    /* Top Navbar */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(250, 246, 238, 0.94);
+      backdrop-filter: blur(8px);
+      border-bottom: 2px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 1.25rem;
+      background: none;
+      border: none;
+      color: var(--ink);
+      cursor: pointer;
+      padding: 4px 8px;
+    }
+
+    .brand-badge {
+      background: var(--accent);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 4px 10px;
+      box-shadow: 2px 2px 0 var(--border);
+    }
+
+    .search-wrap {
+      flex: 1 1 260px;
+      max-width: 440px;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 2px solid var(--border);
+      background: var(--surface);
+      color: var(--ink);
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    .search-input:focus {
+      box-shadow: 0 0 0 3px rgba(245, 184, 46, 0.45);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 9px 16px;
+      border-radius: 999px;
+      border: 2px solid var(--border);
+      background: var(--surface);
+      color: var(--ink);
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.12s ease, background 0.12s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      background: #FFF3D1;
+    }
+
+    .btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 var(--border);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-dark);
+    }
+
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 24px 20px 64px;
+    }
+
+    /* หน้าหลัก: Grid แบ่งส่วนหลัก + คอลัมน์ขวา Bundles */
+    .home-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 310px;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 980px) {
+      .home-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Hero Section */
+    .hero {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 24px;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 760px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .hero-tag {
+      display: inline-block;
+      background: #FFF1C2;
+      border: 2px solid var(--border);
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .hero h1 {
+      margin: 0 0 12px;
+      font-size: clamp(1.6rem, 3vw, 2.3rem);
+      line-height: 1.25;
+    }
+
+    .hero p {
+      margin: 0 0 18px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .stat-pill {
+      background: #FAF6EE;
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 14px;
+      min-width: 110px;
+    }
+
+    .stat-num {
+      font-weight: 800;
+      font-size: 1.2rem;
+      display: block;
+    }
+
+    .stat-label {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    /* มาสคอต + กล่อง Bubble ข้อความโต้ตอบที่แสดงชัดเจน */
+    .mascot-stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      background: #FFF7E0;
+      border: 2px solid var(--border);
+      border-radius: 20px;
+      padding: 18px 14px 14px;
+    }
+
+    .speech-bubble {
+      position: relative;
+      background: #FFFFFF;
+      border: 2.5px solid var(--border);
+      border-radius: 18px;
+      padding: 10px 16px;
+      font-weight: 700;
+      font-size: 0.92rem;
+      line-height: 1.4;
+      box-shadow: 0 4px 0 var(--border);
+      margin-bottom: 14px;
+      max-width: 280px;
+      transition: transform 0.18s ease, background 0.18s ease;
+    }
+
+    .speech-bubble.active-msg {
+      background: var(--accent);
+      transform: scale(1.03);
+    }
+
+    .speech-bubble::after {
+      content: "";
+      position: absolute;
+      bottom: -11px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 10px 10px 0;
+      border-style: solid;
+      border-color: var(--border) transparent transparent;
+    }
+
+    .speech-bubble::before {
+      content: "";
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 8px 8px 0;
+      border-style: solid;
+      border-color: #FFFFFF transparent transparent;
+      z-index: 1;
+    }
+
+    .speech-bubble.active-msg::before {
+      border-top-color: var(--accent);
+    }
+
+    /* Feature Strip */
+    .feature-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 680px) {
+      .feature-strip {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .feature-item {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .feature-item strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .feature-item span {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    /* 6 หมวดหมู่หลัก */
+    .section-title {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 0 0 14px;
+    }
+
+    .section-title h2 {
+      margin: 0;
+      font-size: 1.35rem;
+    }
+
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    @media (max-width: 820px) {
+      .category-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 520px) {
+      .category-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .cat-card {
+      background: var(--card-bg, #FFFDF9);
+      border: 2px solid var(--border);
+      border-radius: 20px;
+      padding: 18px;
+      text-align: left;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .cat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 7px 0 var(--border);
+    }
+
+    .cat-icon {
+      font-size: 2rem;
+      width: 52px;
+      height: 52px;
+      display: grid;
+      place-items: center;
+      background: rgba(255, 255, 255, 0.85);
+      border: 2px solid var(--border);
+      border-radius: 14px;
+    }
+
+    .cat-card h3 {
+      margin: 0 0 6px;
+      font-size: 1.05rem;
+    }
+
+    .cat-card p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .cat-meta {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    /* คอลัมน์ขวา: ชุดรวมแนะนำ */
+    .bundles-panel {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .bundles-panel h2 {
+      margin: 0 0 6px;
+      font-size: 1.2rem;
+    }
+
+    .bundles-panel > p {
+      margin: 0 0 16px;
+      font-size: 0.86rem;
+      color: var(--muted);
+    }
+
+    .bundle-card {
+      background: #FAF6EE;
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .bundle-card:last-child {
+      margin-bottom: 0;
+    }
+
+    .bundle-card h3 {
+      margin: 4px 0 6px;
+      font-size: 1rem;
+    }
+
+    .bundle-card p {
+      margin: 0 0 10px;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    /* หน้าแยกของแต่ละหมวด (Category View) */
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+      font-size: 0.9rem;
+    }
+
+    .cat-header {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 22px 24px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .cat-header h1 {
+      margin: 0 0 6px;
+      font-size: 1.65rem;
+    }
+
+    .cat-header p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .subpage-grid {
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+      gap: 22px;
+      align-items: start;
+    }
+
+    @media (max-width: 860px) {
+      .subpage-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .filter-box {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .filter-group {
+      margin-bottom: 16px;
+    }
+
+    .filter-group label {
+      display: block;
+      font-weight: 700;
+      font-size: 0.88rem;
+      margin-bottom: 6px;
+    }
+
+    .filter-select {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 2px solid var(--border);
+      background: #FAF6EE;
+      color: var(--ink);
+      font-size: 0.88rem;
+    }
+
+    .assets-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    @media (max-width: 1060px) {
+      .assets-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 600px) {
+      .assets-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .asset-card {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 18px;
+      padding: 14px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .preview-box {
+      position: relative;
+      height: 150px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #231F20;
+      color: #FFFDF9;
+    }
+
     .checkerboard {
       background-color: #ffffff;
       background-image:
-        linear-gradient(45deg, #e5e0d8 25%, transparent 25%),
-        linear-gradient(-45deg, #e5e0d8 25%, transparent 25%),
-        linear-gradient(45deg, transparent 75%, #e5e0d8 75%),
-        linear-gradient(-45deg, transparent 75%, #e5e0d8 75%);
-      background-size: 16px 16px;
-      background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+        linear-gradient(45deg, #d8d8d8 25%, transparent 25%),
+        linear-gradient(-45deg, #d8d8d8 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #d8d8d8 75%),
+        linear-gradient(-45deg, transparent 75%, #d8d8d8 75%);
+      background-size: 20px 20px;
+      background-position: 0 0, 0 10px, 10px -10px, -10px 0;
     }
 
-    /* Animated video preview simulation */
-    @keyframes scanlineMove {
-      0% { transform: translateX(-100%); }
-      100% { transform: translateX(220%); }
-    }
-    .animate-scan {
-      animation: scanlineMove 2.2s linear infinite;
-    }
-
-    @keyframes floatSlow {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-6px); }
-    }
-    .animate-float {
-      animation: floatSlow 3.5s ease-in-out infinite;
+    .mini-btn {
+      padding: 5px 10px;
+      font-size: 0.78rem;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--ink);
+      font-weight: 700;
+      cursor: pointer;
     }
 
-    /* Waveform bar pulse */
-    @keyframes wavePulse {
-      0%, 100% { transform: scaleY(0.35); }
-      50% { transform: scaleY(1); }
-    }
-    .wave-playing .wave-bar {
-      animation: wavePulse 0.65s ease-in-out infinite;
+    .asset-title {
+      margin: 0 0 4px;
+      font-size: 1rem;
     }
 
-    /* Lower third slide animation */
-    @keyframes slideTitle {
-      0% { transform: translateX(-18px); opacity: 0; }
-      18% { transform: translateX(0); opacity: 1; }
-      82% { transform: translateX(0); opacity: 1; }
-      100% { transform: translateX(18px); opacity: 0; }
-    }
-    .motion-preview-active {
-      animation: slideTitle var(--motion-dur, 2.5s) cubic-bezier(0.22, 1, 0.36, 1) infinite;
+    .asset-meta {
+      font-size: 0.8rem;
+      color: var(--muted);
     }
 
-    /* Custom subtle scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
+    /* Before/After Slider */
+    .ba-wrap {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      user-select: none;
     }
-    ::-webkit-scrollbar-track {
-      background: #FAF6EE;
+
+    .ba-layer {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
     }
-    ::-webkit-scrollbar-thumb {
-      background: #DFD3BE;
-      border-radius: 9999px;
+
+    /* Toast แจ้งเตือนหลังดาวน์โหลดทันที */
+    .toast-container {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: 340px;
     }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #C7B69B;
+
+    .toast {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 16px;
+      box-shadow: var(--shadow-sm);
+      font-size: 0.86rem;
+      animation: slideUp 0.2s ease;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(14px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* Modal สำหรับพรีวิวใบงาน */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(43, 33, 24, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 9000;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-card {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 20px;
+      max-width: 540px;
+      width: 100%;
+      padding: 22px;
+      box-shadow: var(--shadow);
+      cursor: auto;
+    }
+
+    .hidden {
+      display: none !important;
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col selection:bg-mustard selection:text-espresso">
+<body>
 
-  <!-- ==================== TOP NAVBAR ==================== -->
-  <header class="sticky top-0 z-40 bg-cream/90 backdrop-blur-md border-b border-sand">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 py-3 flex flex-wrap items-center justify-between gap-3">
-      <!-- Brand Logo -->
-      <button onclick="navigateHome()" class="flex items-center gap-2.5 group text-left focus:outline-none">
-        <div class="w-10 h-10 rounded-2xl bg-mustard flex items-center justify-center shadow-sm group-hover:rotate-6 transition-transform">
-          <!-- Film & Timeline Icon -->
-          <svg class="w-6 h-6 text-espresso" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="2" y="4" width="20" height="16" rx="3"></rect>
-            <path d="M7 4v16M17 4v16M2 9h5M2 15h5M17 9h5M17 15h5"></path>
-            <polygon points="10 9.5 15 12 10 14.5 10 9.5" fill="currentColor"></polygon>
-          </svg>
-        </div>
-        <div>
-          <span class="font-display font-bold text-xl tracking-tight text-espresso block leading-none">CutLab</span>
-          <span class="text-[11px] text-cocoa font-medium">คลังสื่อการตัดต่อ</span>
-        </div>
-      </button>
+  <!-- เคอร์เซอร์ Emoji รูปกล้องในหน้าแรก -->
+  <div id="camera-cursor" aria-hidden="true">🎥</div>
 
-      <!-- Live Global Search Bar -->
-      <div class="relative flex-1 max-w-md order-3 md:order-2 w-full md:w-auto">
-        <div class="relative flex items-center">
-          <svg class="w-4 h-4 text-cocoa absolute left-3.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z"/>
-          </svg>
-          <input
-            id="globalSearchInput"
-            type="text"
-            placeholder="ค้นหาสื่อ เช่น whoosh, LUT, green screen, คีย์ลัด..."
-            oninput="handleGlobalSearch(this.value)"
-            class="w-full pl-10 pr-9 py-2 rounded-full bg-cardbg border border-sand text-sm text-espresso placeholder-cocoa/60 focus:outline-none focus:border-mustard focus:ring-2 focus:ring-mustard/30 transition"
-          />
-          <button id="clearSearchBtn" onclick="clearGlobalSearch()" class="hidden absolute right-3 text-cocoa hover:text-espresso text-xs font-bold p-1">✕</button>
-        </div>
-      </div>
+  <!-- แถบนำทางด้านบน -->
+  <header class="navbar">
+    <button id="home-btn" class="brand" type="button">
+      <span class="brand-badge">CutLab</span>
+      <span>คลังสื่อตัดต่อ</span>
+    </button>
 
-      <!-- Navigation Pills & Quick Stats -->
-      <nav class="flex items-center gap-2 order-2 md:order-3">
-        <button onclick="navigateHome()" id="navHomeBtn" class="px-3.5 py-2 rounded-full text-sm font-medium bg-espresso text-cream transition">
-          หน้าหลัก
-        </button>
-        <div class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-pastelYellow border border-mustard/40 text-xs font-semibold text-espresso">
-          <span>📥 โหลดไปแล้ว:</span>
-          <span id="downloadCounter" class="font-display text-sm font-bold">0</span>
-          <span>ไฟล์</span>
-        </div>
-      </nav>
+    <div class="search-wrap">
+      <input id="global-search" class="search-input" type="search" placeholder="ค้นหาสื่อ เช่น whoosh, LUT, green screen, คีย์ลัด..." />
     </div>
 
-    <!-- Category Quick-Jump Bar (Visible when inside a category or scrolling) -->
-    <div id="quickCatBar" class="hidden border-t border-sand/70 bg-cardbg/90">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex items-center gap-2 overflow-x-auto no-scrollbar text-xs">
-        <span class="text-cocoa font-medium shrink-0">หมวดสื่อ:</span>
-        <div id="quickCatPills" class="flex items-center gap-1.5"></div>
-      </div>
+    <div class="nav-actions">
+      <button id="scroll-bundles-btn" class="btn" type="button">📦 ชุดรวมแนะนำ</button>
+      <button id="back-home-btn" class="btn btn-primary hidden" type="button">← หน้าแรก</button>
     </div>
   </header>
 
-  <!-- ==================== GLOBAL SEARCH RESULTS OVERLAY ==================== -->
-  <section id="searchResultsSection" class="hidden max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-6 pb-12">
-    <div class="flex flex-wrap items-center justify-between gap-3 mb-5 bg-cardbg p-4 rounded-3xl border border-sand shadow-soft">
+  <!-- ==================== หน้าหลัก ==================== -->
+  <main id="home-view" class="container">
+    <div class="home-layout">
       <div>
-        <h2 class="text-lg font-bold text-espresso">ผลการค้นหา "<span id="searchQueryLabel" class="text-mustardDark"></span>"</h2>
-        <p class="text-xs text-cocoa">พบ <span id="searchCountLabel" class="font-bold">0</span> รายการในคลังสื่อ CutLab</p>
-      </div>
-      <button onclick="clearGlobalSearch()" class="px-4 py-2 rounded-full bg-sand hover:bg-mustard/40 text-xs font-semibold text-espresso transition">
-        ปิดผลการค้นหา ✕
-      </button>
-    </div>
-    <div id="searchResultsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
-  </section>
-
-  <!-- ==================== VIEW 1: HOME PAGE ==================== -->
-  <main id="homeView" class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8">
-
-    <!-- Top Grid: Hero Banner + Interactive Eye-Tracking Mascot -->
-    <section class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-
-      <!-- Left Hero Content (7 cols) -->
-      <div class="lg:col-span-7 bg-gradient-to-br from-[#F7D774] via-[#F6C84C] to-[#F3B72B] rounded-[2rem] p-6 sm:p-9 relative overflow-hidden shadow-soft flex flex-col justify-between">
-        <!-- Decorative soft shapes -->
-        <div class="w-56 h-56 rounded-full bg-white/20 absolute -top-16 -right-16 pointer-events-none"></div>
-        <div class="w-36 h-36 rounded-full bg-espresso/5 absolute -bottom-10 left-10 pointer-events-none"></div>
-
-        <div class="relative z-10 space-y-4">
-          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cardbg/90 text-espresso text-xs font-semibold shadow-sm">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>CutLab Content Hub • คลังสื่อดิจิทัลสำหรับงานตัดต่อ</span>
-          </div>
-
-          <h1 class="text-3xl sm:text-4xl lg:text-[2.65rem] font-bold text-espresso leading-tight">
-            คลังสื่อตัดต่อ<br/>
-            <span class="bg-cardbg px-3 py-0.5 rounded-2xl inline-block mt-1 shadow-sm">พร้อมลากวางลงไทม์ไลน์</span>
-          </h1>
-
-          <p class="text-espresso/85 text-sm sm:text-base max-w-xl leading-relaxed">
-            รวมฟุตเทจ ซาวด์เอฟเฟกต์ เทมเพลตโมชัน LUTs และใบงานฝึกปฏิบัติ จัดหมวดหมู่ชัดเจน ค้นหาง่าย พรีวิวได้ทันที และกดดาวน์โหลดไฟล์ไปใช้งานได้เลย
-          </p>
-
-          <div class="pt-1 flex flex-wrap items-center gap-3">
-            <a href="#categorySection" class="px-6 py-3 rounded-full bg-espresso text-cream font-semibold text-sm hover:bg-espresso/90 transition shadow-md inline-flex items-center gap-2">
-              <span>เริ่มสำรวจคลังสื่อ</span>
-              <span>↓</span>
-            </a>
-            <button onclick="openCategory('audio')" class="px-5 py-3 rounded-full bg-cardbg/90 hover:bg-cardbg text-espresso font-semibold text-sm transition shadow-sm">
-              🎧 ลองฟังซาวด์เอฟเฟกต์
-            </button>
-          </div>
-        </div>
-
-        <!-- Bottom Hero Stats -->
-        <div class="relative z-10 grid grid-cols-3 gap-3 sm:gap-6 pt-7 mt-6 border-t border-espresso/15">
+        <!-- Hero Banner -->
+        <section class="hero">
           <div>
-            <div class="font-display font-bold text-2xl sm:text-3xl text-espresso">1,240+</div>
-            <div class="text-xs text-espresso/80 font-medium">ไฟล์สื่อพร้อมใช้งาน</div>
+            <span class="hero-tag">STUDIO SANDBOX · 6 หมวดสื่อหลัก</span>
+            <h1>คลังสื่อตัดต่อ พร้อมหยิบวางลงไทม์ไลน์ได้ทันที</h1>
+            <p>รวมฟุตเทจ เสียงเอฟเฟกต์ เทมเพลตโมชัน กราฟิก LUTs และใบงานฝึกปฏิบัติ แยกหมวดหมู่ชัดเจน กดดาวน์โหลดไฟล์ได้ทันที</p>
+            <button id="explore-btn" class="btn btn-primary" type="button">เริ่มสำรวจหมวดสื่อ ↓</button>
+
+            <div class="stats-row">
+              <div class="stat-pill">
+                <span class="stat-num">18+</span>
+                <span class="stat-label">ไฟล์สื่อพร้อมใช้</span>
+              </div>
+              <div class="stat-pill">
+                <span class="stat-num">6</span>
+                <span class="stat-label">หมวดหมู่หลัก</span>
+              </div>
+              <div class="stat-pill">
+                <span class="stat-num">1-Click</span>
+                <span class="stat-label">ดาวน์โหลดทันที</span>
+              </div>
+            </div>
           </div>
-          <div>
-            <div class="font-display font-bold text-2xl sm:text-3xl text-espresso">6 หมวด</div>
-            <div class="text-xs text-espresso/80 font-medium">แยกประเภทชัดเจน</div>
+
+          <!-- มาสคอตกลอกตาตามกล้อง + กล่อง Bubble ข้อความโต้ตอบ -->
+          <div class="mascot-stage">
+            <div id="mascot-bubble" class="speech-bubble">
+              ขยับกล้อง 🎥 ดูสิ! ชี้หมวดสื่อด้านล่างเพื่อดูคำแนะนำได้เลย
+            </div>
+
+            <svg id="mascot-svg" width="170" height="150" viewBox="0 0 180 160" aria-label="มาสคอต CutLab">
+              <circle cx="90" cy="86" r="56" fill="#FFD166" stroke="#2B2118" stroke-width="4" />
+              <path d="M28 86 A62 62 0 0 1 152 86" fill="none" stroke="#2B2118" stroke-width="7" stroke-linecap="round" />
+              <rect x="16" y="73" width="18" height="32" rx="8" fill="#2B2118" />
+              <rect x="146" y="73" width="18" height="32" rx="8" fill="#2B2118" />
+
+              <circle cx="68" cy="79" r="16" fill="#FFFFFF" stroke="#2B2118" stroke-width="3" />
+              <circle class="pupil" cx="68" cy="79" r="7" fill="#2B2118" />
+
+              <circle cx="112" cy="79" r="16" fill="#FFFFFF" stroke="#2B2118" stroke-width="3" />
+              <circle class="pupil" cx="112" cy="79" r="7" fill="#2B2118" />
+
+              <path d="M75 109 Q90 121 105 109" fill="none" stroke="#2B2118" stroke-width="4" stroke-linecap="round" />
+            </svg>
           </div>
-          <div>
-            <div class="font-display font-bold text-2xl sm:text-3xl text-espresso">4.9 ★</div>
-            <div class="text-xs text-espresso/80 font-medium">รีวิวจากผู้เรียนและครีเอเตอร์</div>
+        </section>
+
+        <!-- แถบจุดเด่น -->
+        <section class="feature-strip">
+          <div class="feature-item">
+            <strong>⚡ ดาวน์โหลดได้ทันที</strong>
+            <span>กดปุ่มบนการ์ดแล้วรับไฟล์ลงเครื่องได้ในคลิกเดียว</span>
           </div>
-        </div>
-      </div>
-
-      <!-- Right Hero Card: Interactive Eye-Tracking Editor Mascot (5 cols) -->
-      <div class="lg:col-span-5 bg-cardbg rounded-[2rem] border border-sand p-6 sm:p-7 shadow-soft flex flex-col items-center justify-between relative overflow-hidden">
-        <div class="w-full flex items-center justify-between">
-          <span class="text-xs font-semibold px-3 py-1 rounded-full bg-sand text-espresso">ผู้ช่วยประจำสตูดิโอ</span>
-          <span class="text-[11px] text-cocoa">👀 ลองขยับเมาส์รอบๆ จอสิ!</span>
-        </div>
-
-        <!-- Dynamic Speech Bubble -->
-        <div id="mascotSpeechBubble" class="mt-3 mb-1 px-4 py-2.5 rounded-2xl bg-pastelYellow border border-mustard/50 text-espresso text-xs sm:text-sm font-medium text-center shadow-sm transition-all duration-200 max-w-xs">
-          "สวัสดี! เลือกหมวดสื่อด้านล่าง หรือลองชี้การ์ดดูได้เลย 🎬"
-        </div>
-
-        <!-- Interactive SVG Mascot: Cute Video Editor Character -->
-        <div class="relative w-56 h-56 sm:w-64 sm:h-64 flex items-center justify-center select-none my-1">
-          <svg id="heroMascotSvg" viewBox="0 0 260 260" class="w-full h-full overflow-visible">
-            <!-- Soft Studio Backdrop Circle -->
-            <circle cx="130" cy="138" r="96" fill="#FAF0D7" />
-            <circle cx="130" cy="138" r="82" fill="#F6E5BD" opacity="0.55" />
-
-            <!-- Desk / Timeline Bar at Bottom -->
-            <rect x="34" y="212" width="192" height="18" rx="9" fill="#2B2118" />
-            <rect x="50" y="217" width="44" height="8" rx="4" fill="#F5B82E" />
-            <rect x="100" y="217" width="62" height="8" rx="4" fill="#7CC6FE" />
-            <rect x="168" y="217" width="42" height="8" rx="4" fill="#FF8FA3" />
-
-            <!-- Body / Hoodie -->
-            <path d="M74 212 C74 176, 94 162, 130 162 C166 162, 186 176, 186 212 Z" fill="#3D3126" />
-            <!-- Hoodie Collar / Yellow Accent -->
-            <path d="M106 164 L130 184 L154 164" fill="none" stroke="#F5B82E" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
-
-            <!-- Headphone Band -->
-            <path d="M68 118 C68 68, 192 68, 192 118" fill="none" stroke="#2B2118" stroke-width="11" stroke-linecap="round" />
-            <path d="M84 82 C106 66, 154 66, 176 82" fill="none" stroke="#F5B82E" stroke-width="5" stroke-linecap="round" />
-
-            <!-- Head Shape -->
-            <rect x="78" y="76" width="104" height="92" rx="44" fill="#FFE0C2" stroke="#2B2118" stroke-width="3.5" />
-
-            <!-- Hair Fringe -->
-            <path d="M78 112 C80 74, 180 74, 182 112 C168 96, 148 92, 132 102 C116 90, 94 94, 78 112 Z" fill="#2B2118" />
-
-            <!-- Left & Right Studio Earcups -->
-            <rect x="61" y="102" width="20" height="42" rx="10" fill="#F5B82E" stroke="#2B2118" stroke-width="3.5" />
-            <rect x="179" y="102" width="20" height="42" rx="10" fill="#F5B82E" stroke="#2B2118" stroke-width="3.5" />
-
-            <!-- Cheeks -->
-            <ellipse cx="97" cy="137" rx="8" ry="5" fill="#FF9E9E" opacity="0.65" />
-            <ellipse cx="163" cy="137" rx="8" ry="5" fill="#FF9E9E" opacity="0.65" />
-
-            <!-- Eyes Container (White Sclera) -->
-            <g id="mascotEyesGroup">
-              <!-- Left Eye -->
-              <circle cx="108" cy="122" r="13" fill="#FFFFFF" stroke="#2B2118" stroke-width="3" />
-              <!-- Left Pupil (Moves via JS) -->
-              <g id="leftPupil">
-                <circle cx="108" cy="122" r="6.2" fill="#2B2118" />
-                <circle cx="105.5" cy="119.5" r="2.2" fill="#FFFFFF" />
-              </g>
-
-              <!-- Right Eye -->
-              <circle cx="152" cy="122" r="13" fill="#FFFFFF" stroke="#2B2118" stroke-width="3" />
-              <!-- Right Pupil (Moves via JS) -->
-              <g id="rightPupil">
-                <circle cx="152" cy="122" r="6.2" fill="#2B2118" />
-                <circle cx="149.5" cy="119.5" r="2.2" fill="#FFFFFF" />
-              </g>
-            </g>
-
-            <!-- Eyebrows -->
-            <path d="M98 105 Q108 100 117 105" fill="none" stroke="#2B2118" stroke-width="3" stroke-linecap="round" />
-            <path d="M143 105 Q152 100 162 105" fill="none" stroke="#2B2118" stroke-width="3" stroke-linecap="round" />
-
-            <!-- Happy Mouth -->
-            <path id="mascotMouth" d="M121 143 Q130 152 139 143" fill="none" stroke="#2B2118" stroke-width="3.2" stroke-linecap="round" />
-
-            <!-- Mini Clapperboard in Hand -->
-            <g class="animate-float">
-              <rect x="164" y="168" width="46" height="34" rx="6" fill="#2B2118" stroke="#FFFDF9" stroke-width="2" />
-              <path d="M164 176 L210 176" stroke="#F5B82E" stroke-width="4" stroke-dasharray="6 4" />
-              <polygon points="183,183 195,189 183,195" fill="#FFFDF9" />
-            </g>
-          </svg>
-        </div>
-
-        <div class="text-center text-xs text-cocoa">
-          คลิกการ์ดหมวดสื่อเพื่อเปิดดูตัวกรองและลูกเล่นพรีวิวเฉพาะทาง
-        </div>
-      </div>
-    </section>
-
-    <!-- Feature Strip (Trust & Usability Bar) -->
-    <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div class="bg-cardbg rounded-2xl p-4 border border-sand flex items-center gap-3.5 shadow-sm">
-        <div class="w-11 h-11 rounded-2xl bg-pastelMint flex items-center justify-center text-xl shrink-0">⚡</div>
-        <div>
-          <h3 class="font-bold text-sm text-espresso">ดาวน์โหลดได้ทันที</h3>
-          <p class="text-xs text-cocoa">คลิกปุ่มเดียวรับไฟล์ลงเครื่อง ไม่ต้องรอหลายขั้นตอน</p>
-        </div>
-      </div>
-      <div class="bg-cardbg rounded-2xl p-4 border border-sand flex items-center gap-3.5 shadow-sm">
-        <div class="w-11 h-11 rounded-2xl bg-pastelBlue flex items-center justify-center text-xl shrink-0">🗂️</div>
-        <div>
-          <h3 class="font-bold text-sm text-espresso">แยกหมวดหมู่แบบคลังสื่อ</h3>
-          <p class="text-xs text-cocoa">คัดกรองตามประเภทสื่อ นามสกุลไฟล์ และแนวโปรเจกต์</p>
-        </div>
-      </div>
-      <div class="bg-cardbg rounded-2xl p-4 border border-sand flex items-center gap-3.5 shadow-sm">
-        <div class="w-11 h-11 rounded-2xl bg-pastelPeach flex items-center justify-center text-xl shrink-0">🎛️</div>
-        <div>
-          <h3 class="font-bold text-sm text-espresso">พรีวิวโต้ตอบก่อนโหลด</h3>
-          <p class="text-xs text-cocoa">ฟังเสียงจริง เทียบสี Before/After และเช็กพื้นหลังโปร่งใสได้</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Main Lower Grid: 6 Category Cards (Left 8 cols) + Starter Bundles Sidebar (Right 4 cols) -->
-    <section id="categorySection" class="grid grid-cols-1 lg:grid-cols-12 gap-7 items-start pt-2">
-
-      <!-- Left 8 Cols: 6 Main Media Categories -->
-      <div class="lg:col-span-8 space-y-4">
-        <div class="flex flex-wrap items-end justify-between gap-2">
-          <div>
-            <h2 class="text-2xl font-bold text-espresso">เลือกหมวดหมู่สื่อที่ต้องการ</h2>
-            <p class="text-sm text-cocoa">คลิกที่การ์ดเพื่อเปิดหน้าคลังย่อยพร้อมเครื่องมือพรีวิวเฉพาะหมวด</p>
+          <div class="feature-item">
+            <strong>🎛️ พรีวิวเฉพาะทางแต่ละหมวด</strong>
+            <span>เช็ก Alpha, ฟังเสียง, เทียบ LUTs และปรับความเร็วโมชันได้</span>
           </div>
-          <span class="text-xs font-medium text-cocoa bg-sand/70 px-3 py-1 rounded-full">6 หมวดหลักตามประเภทสื่อ</span>
-        </div>
+          <div class="feature-item">
+            <strong>📚 เหมาะทั้งเรียนและงานจริง</strong>
+            <span>มีทั้งไฟล์สื่อประกอบงานและใบงาน/โจทย์ฝึกตัดต่อ</span>
+          </div>
+        </section>
 
-        <!-- 6 Pastel Category Cards Grid -->
-        <div id="categoryCardsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          <!-- Rendered dynamically by JS -->
-        </div>
+        <!-- 6 หมวดหมู่หลัก -->
+        <section id="categories-section">
+          <div class="section-title">
+            <h2>เลือกหมวดหมู่สื่อหลัก</h2>
+            <span style="font-size:0.85rem;color:var(--muted);">คลิกการ์ดเพื่อเปิดหน้าแยกของหมวดนั้น</span>
+          </div>
+          <div id="category-grid" class="category-grid"></div>
+        </section>
+
+        <!-- ผลลัพธ์การค้นหาข้ามหมวด (แสดงเมื่อพิมพ์ค้นหาในหน้าหลัก) -->
+        <section id="search-results-section" class="hidden" style="margin-top:24px;">
+          <div class="section-title">
+            <h2>ผลการค้นหา</h2>
+            <button id="clear-search-btn" class="mini-btn" type="button">ล้างคำค้นหา</button>
+          </div>
+          <div id="search-results-grid" class="assets-grid"></div>
+        </section>
       </div>
 
-      <!-- Right 4 Cols: Featured Starter Bundles (Like "Tail-wagging deals") -->
-      <aside class="lg:col-span-4 bg-cardbg rounded-[2rem] border border-sand p-5 sm:p-6 shadow-soft space-y-4">
-        <div class="flex items-center justify-between">
-          <div>
-            <span class="text-[11px] font-bold uppercase tracking-wider text-mustardDark">Curated Packs</span>
-            <h2 class="text-lg font-bold text-espresso">ชุดรวมแนะนำ</h2>
-          </div>
-          <span class="text-2xl">🎁</span>
-        </div>
-        <p class="text-xs text-cocoa">รวมไฟล์ที่ใช้คู่กันบ่อย จัดชุดพร้อมดาวน์โหลดไปเริ่มตัดต่อได้ทันที</p>
-
-        <div id="starterBundlesList" class="space-y-3.5">
-          <!-- Rendered dynamically by JS -->
-        </div>
+      <!-- คอลัมน์ขวา: ชุดรวมแนะนำ -->
+      <aside id="bundles-panel" class="bundles-panel">
+        <h2>🎁 ชุดรวมแนะนำ</h2>
+        <p>แพ็กไฟล์ที่หยิบไปใช้คู่กันบ่อย กดโหลดได้ทันที</p>
+        <div id="bundles-list"></div>
       </aside>
-    </section>
+    </div>
   </main>
 
-  <!-- ==================== VIEW 2: DEDICATED CATEGORY PAGE ==================== -->
-  <section id="categoryView" class="hidden flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-
-    <!-- Breadcrumb & Category Hero Header -->
-    <div id="catHeaderBanner" class="rounded-[2rem] p-6 sm:p-8 border border-sand shadow-soft flex flex-col md:flex-row items-start md:items-center justify-between gap-6 transition-colors">
-      <div class="space-y-2.5 max-w-2xl">
-        <!-- Breadcrumb -->
-        <div class="flex items-center gap-2 text-xs font-medium text-espresso/75">
-          <button onclick="navigateHome()" class="hover:underline flex items-center gap-1 font-semibold">
-            ← หน้าหลัก
-          </button>
-          <span>/</span>
-          <span id="catBreadcrumbName" class="font-bold text-espresso">หมวดหมู่</span>
-        </div>
-
-        <div class="flex items-center gap-3">
-          <span id="catHeaderEmoji" class="text-3xl sm:text-4xl bg-cardbg w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm">🎬</span>
-          <div>
-            <h1 id="catHeaderTitle" class="text-2xl sm:text-3xl font-bold text-espresso">ชื่อหมวดหมู่</h1>
-            <p id="catHeaderDesc" class="text-xs sm:text-sm text-espresso/80 mt-0.5">คำอธิบายหมวดหมู่</p>
-          </div>
-        </div>
-
-        <!-- Special Interactive Tip Banner per Category -->
-        <div id="catInteractiveTip" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cardbg/90 text-xs font-medium text-espresso shadow-sm">
-          ✨ เคล็ดลับการใช้งาน
-        </div>
-      </div>
-
-      <!-- Mini Category Mascot Reaction Box -->
-      <div class="bg-cardbg/95 rounded-2xl p-4 border border-espresso/10 flex items-center gap-3.5 max-w-xs w-full md:w-auto shadow-sm">
-        <div class="w-12 h-12 rounded-2xl bg-mustard flex items-center justify-center text-2xl shrink-0" id="miniMascotBadge">🎧</div>
-        <div>
-          <div class="text-[11px] font-bold text-mustardDark">CutLab Assistant</div>
-          <p id="miniMascotNote" class="text-xs text-espresso font-medium leading-snug">พร้อมช่วยค้นหาไฟล์ในหมวดนี้!</p>
-        </div>
-      </div>
+  <!-- ==================== หน้าแยกแต่ละหมวด ==================== -->
+  <section id="category-view" class="container hidden">
+    <div class="breadcrumb">
+      <button id="crumb-home" class="mini-btn" type="button">หน้าหลัก</button>
+      <span>/</span>
+      <strong id="crumb-cat-name">ชื่อหมวด</strong>
     </div>
 
-    <!-- OBEC-Style Content Center Layout: Left Filter Sidebar + Right Asset Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+    <div class="cat-header">
+      <div>
+        <h1 id="cat-page-title">ชื่อหมวดหมู่</h1>
+        <p id="cat-page-desc">คำอธิบายหมวดหมู่</p>
+      </div>
+      <div id="cat-page-count" class="stat-pill"></div>
+    </div>
 
-      <!-- Left Filter Sidebar (3 Cols) -->
-      <aside class="lg:col-span-3 bg-cardbg rounded-3xl border border-sand p-5 shadow-soft space-y-5 lg:sticky lg:top-28">
-        <div class="flex items-center justify-between border-b border-sand pb-3">
-          <h3 class="font-bold text-sm text-espresso flex items-center gap-1.5">
-            <span>🎛️</span> ตัวกรองคลังสื่อ
-          </h3>
-          <button onclick="resetCategoryFilters()" class="text-xs text-mustardDark hover:underline font-semibold">
-            ล้างค่า
-          </button>
+    <div class="subpage-grid">
+      <!-- ตัวกรองย่อยด้านซ้าย -->
+      <aside class="filter-box">
+        <h3 style="margin:0 0 14px;font-size:1.05rem;">ตัวกรองสื่อ</h3>
+        <div class="filter-group">
+          <label for="filter-format">รูปแบบไฟล์</label>
+          <select id="filter-format" class="filter-select">
+            <option value="all">ทั้งหมด</option>
+          </select>
         </div>
-
-        <!-- Filter 1: Sub-category -->
-        <div class="space-y-2">
-          <label class="text-xs font-bold text-espresso block">หมวดหมู่ย่อย</label>
-          <div id="filterSubCategories" class="space-y-1.5 text-xs"></div>
+        <div class="filter-group">
+          <label for="filter-usage">ประเภทงาน / การใช้งาน</label>
+          <select id="filter-usage" class="filter-select">
+            <option value="all">ทั้งหมด</option>
+            <option value="เล่าเรื่อง / สารคดี">เล่าเรื่อง / สารคดี</option>
+            <option value="คอนเทนต์สั้น / โซเชียล">คอนเทนต์สั้น / โซเชียล</option>
+            <option value="ฝึกปฏิบัติ / ชั้นเรียน">ฝึกปฏิบัติ / ชั้นเรียน</option>
+          </select>
         </div>
-
-        <!-- Filter 2: File Extension -->
-        <div class="space-y-2 pt-2 border-t border-sand/70">
-          <label class="text-xs font-bold text-espresso block">รูปแบบไฟล์ (Format)</label>
-          <div id="filterFormats" class="flex flex-wrap gap-1.5"></div>
-        </div>
-
-        <!-- Filter 3: Project Usage Type -->
-        <div class="space-y-2 pt-2 border-t border-sand/70">
-          <label class="text-xs font-bold text-espresso block">แนวงาน / การใช้งาน</label>
-          <div id="filterProjectTypes" class="space-y-1.5 text-xs"></div>
-        </div>
+        <button id="reset-filters-btn" class="btn" style="width:100%;" type="button">ล้างตัวกรอง</button>
       </aside>
 
-      <!-- Right Asset Grid (9 Cols) -->
-      <div class="lg:col-span-9 space-y-4">
-        <div class="flex flex-wrap items-center justify-between gap-2 bg-cardbg px-4 py-3 rounded-2xl border border-sand">
-          <div class="text-xs text-cocoa">
-            แสดงผล <span id="filteredAssetCount" class="font-bold text-espresso text-sm">0</span> รายการ
-          </div>
-          <div class="flex items-center gap-2 text-xs">
-            <span class="text-cocoa">เรียงตาม:</span>
-            <select id="sortSelect" onchange="renderCategoryAssets()" class="bg-cream border border-sand rounded-xl px-2.5 py-1.5 text-espresso font-medium focus:outline-none">
-              <option value="popular">ยอดนิยม</option>
-              <option value="newest">อัปเดตล่าสุด</option>
-              <option value="name">ชื่อไฟล์ (ก-ฮ / A-Z)</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Assets Cards Container -->
-        <div id="categoryAssetsGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-          <!-- Rendered dynamically by JS -->
-        </div>
-      </div>
+      <!-- รายการสื่อและการพรีวิว -->
+      <div id="cat-assets-grid" class="assets-grid"></div>
     </div>
   </section>
 
-  <!-- ==================== GUIDE / WORKSHEET QUICK-VIEW MODAL ==================== -->
-  <div id="guideModal" class="hidden fixed inset-0 z-50 bg-espresso/50 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-cardbg rounded-3xl max-w-xl w-full border border-sand shadow-2xl overflow-hidden animate-float" style="animation: none;">
-      <div class="bg-pastelPink px-6 py-4 flex items-center justify-between border-b border-sand">
-        <div class="flex items-center gap-2.5">
-          <span class="text-2xl">📋</span>
-          <div>
-            <h3 id="modalGuideTitle" class="font-bold text-base text-espresso">ตัวอย่างใบงานและคู่มือ</h3>
-            <span id="modalGuideMeta" class="text-xs text-espresso/75">PDF / TXT • พร้อมดาวน์โหลด</span>
-          </div>
-        </div>
-        <button onclick="closeGuideModal()" class="w-8 h-8 rounded-full bg-cardbg text-espresso font-bold hover:bg-espresso hover:text-cream transition">✕</button>
+  <!-- Modal สำหรับอ่านใบงาน -->
+  <div id="sheet-modal" class="modal-backdrop" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;">
+        <h3 id="modal-title" style="margin:0;">ตัวอย่างใบงาน</h3>
+        <button id="close-modal-btn" class="mini-btn" type="button">ปิด ✕</button>
       </div>
-      <div class="p-6 space-y-4 max-h-[65vh] overflow-y-auto">
-        <div id="modalGuideBody" class="text-sm text-espresso leading-relaxed space-y-3 bg-cream p-4 rounded-2xl border border-sand"></div>
-      </div>
-      <div class="px-6 py-4 bg-cream border-t border-sand flex items-center justify-between gap-3">
-        <button onclick="closeGuideModal()" class="px-4 py-2 rounded-full text-xs font-semibold text-cocoa hover:text-espresso">ปิดหน้าต่าง</button>
-        <button id="modalGuideDownloadBtn" class="px-5 py-2.5 rounded-full bg-espresso text-cream text-xs font-semibold hover:bg-mustard hover:text-espresso transition flex items-center gap-2">
-          <span>📥 ดาวน์โหลดเอกสารนี้ทันที</span>
-        </button>
-      </div>
+      <div id="modal-body" style="background:#FAF6EE;border:1.5px solid var(--border);border-radius:12px;padding:14px;line-height:1.65;font-size:0.92rem;white-space:pre-line;"></div>
     </div>
   </div>
 
-  <!-- ==================== INSTANT DOWNLOAD TOAST NOTIFICATION ==================== -->
-  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+  <!-- Toast แจ้งเตือนการดาวน์โหลด -->
+  <div id="toast-container" class="toast-container"></div>
 
-  <!-- ==================== FOOTER ==================== -->
-  <footer class="mt-12 border-t border-sand bg-cardbg/70 py-6">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-cocoa">
-      <div class="flex items-center gap-2">
-        <span class="font-display font-bold text-espresso text-sm">CutLab</span>
-        <span>• คลังสื่อดิจิทัลเพื่อการเรียนรู้และงานตัดต่อ</span>
-      </div>
-      <div>ออกแบบโครงสร้างหมวดหมู่สื่อเพื่อการค้นหา พรีวิว และดาวน์โหลดใช้งานทันที</div>
-    </div>
-  </footer>
-
-  <!-- ==================== JAVASCRIPT LOGIC ==================== -->
   <script>
-    // -------------------------------------------------------------
-    // 1. DATA MODEL: 6 MAIN CATEGORIES & RICH EDITING ASSETS
-    // -------------------------------------------------------------
     const CATEGORIES = [
       {
-        id: 'video',
-        name: 'วิดีโอ & ฟุตเทจ',
-        engName: 'Video & Footage',
-        emoji: '🎬',
-        bgClass: 'bg-pastelBlue',
-        desc: 'คลิปพื้นหลัง B-Roll, กรีนสกรีน (Green Screen), โมชันแบ็กกราวด์ และฟุตเทจสำหรับฝึกตัดต่อ',
-        tip: '💡 นำเมาส์ชี้บนการ์ดเพื่อดูตัวอย่างการเคลื่อนไหว หรือกดสลับพื้นหลังตารางหมากรุกเพื่อเช็ก Green Screen',
-        mascotBadge: '🎥',
-        mascotQuote: 'ลองชี้เมาส์บนคลิปเพื่อพรีวิว หรือสลับพื้นหลังโปร่งใสได้เลย!',
-        subCategories: ['B-Roll บรรยากาศ', 'Green Screen / Alpha', 'Motion Background', 'ฟุตเทจฝึกตัดต่อ'],
-        formats: ['.mp4', '.mov'],
-        countText: '320 ไฟล์'
+        id: "video",
+        title: "วิดีโอ & ฟุตเทจ",
+        desc: "B-Roll กรีนสกรีน โมชันแบ็กกราวด์ และฟุตเทจฝึกตัดต่อ",
+        bg: "#DCEEFF",
+        icon: "🎬",
+        mascotMsg: "วิดีโอ & ฟุตเทจ! ลองชี้ดูตัวอย่างและกดเช็ก Alpha ได้เลย",
+        tip: "แนะนำให้ตั้งค่า Sequence Frame Rate ให้ตรงกับฟุตเทจหลัก"
       },
       {
-        id: 'audio',
-        name: 'เสียง & เอฟเฟกต์',
-        engName: 'Audio & SFX',
-        emoji: '🎧',
-        bgClass: 'bg-pastelYellow',
-        desc: 'ซาวด์เอฟเฟกต์เปลี่ยนฉาก Whoosh, Pop, Riser, บรรยากาศรอบข้าง และดนตรีประกอบจังหวะ',
-        tip: '🔊 กดปุ่ม Play บนการ์ดเพื่อฟังเสียงสังเคราะห์จริงผ่านเบราว์เซอร์ได้ทันที!',
-        mascotBadge: '🎧',
-        mascotQuote: 'ใส่หูฟังแล้วกดลองฟังคลื่นเสียงบนการ์ดได้เลย เสียงคมชัด!',
-        subCategories: ['Transition Whoosh', 'UI & Pop SFX', 'Cinematic Riser', 'Ambience & Beat'],
-        formats: ['.wav', '.mp3'],
-        countText: '410 ไฟล์'
+        id: "audio",
+        title: "เสียง & เอฟเฟกต์",
+        desc: "ซาวด์เอฟเฟกต์ Whoosh, Pop, Ambience และบีตประกอบ",
+        bg: "#FFF0B8",
+        icon: "🔊",
+        mascotMsg: "เสียง & เอฟเฟกต์! กดปุ่มฟังเสียงก่อนโหลดได้ทันที",
+        tip: "วาง SFX ข้ามจุดตัดภาพ (J-Cut / L-Cut) จะช่วยให้เปลี่ยนฉากลื่นขึ้น"
       },
       {
-        id: 'templates',
-        name: 'เทมเพลต & โมชัน',
-        engName: 'Templates & Motion',
-        emoji: '✨',
-        bgClass: 'bg-pastelPeach',
-        desc: 'เทมเพลตไตเติล แถบชื่อ Lower Third, ทรานซิชันสำเร็จรูป และพรีเซ็ตแอนิเมชันข้อความ',
-        tip: '⚡ ปรับความเร็วพรีวิว (0.5x / 1x / 2x) บนการ์ดเพื่อดูจังหวะการเด้งของข้อความก่อนโหลด',
-        mascotBadge: '🪄',
-        mascotQuote: 'เทมเพลตข้อความช่วยให้คลิปเล่าเรื่องดูโปรขึ้นในพริบตา!',
-        subCategories: ['Lower Third แถบชื่อ', 'Title เปิดเรื่อง', 'Transition ทรานซิชัน', 'Callout ชี้จุดสำคัญ'],
-        formats: ['.mogrt', '.drfx', '.mp4'],
-        countText: '185 ไฟล์'
+        id: "motion",
+        title: "เทมเพลต & โมชัน",
+        desc: "ไตเติล โลเวอร์เทิร์ด ทรานซิชัน และตัวอย่างโมชัน",
+        bg: "#FFE0CC",
+        icon: "✨",
+        mascotMsg: "เทมเพลต & โมชัน! ลองปรับความเร็ว 0.5x / 1x / 2x ดูจังหวะ",
+        tip: "ปรับความเร็วโมชันให้สอดคล้องกับจังหวะดนตรีในไทม์ไลน์"
       },
       {
-        id: 'graphics',
-        name: 'ภาพ & กราฟิก',
-        engName: 'Images & Graphics',
-        emoji: '🖼️',
-        bgClass: 'bg-pastelMint',
-        desc: 'องค์ประกอบ PNG พื้นหลังโปร่งใส ไอคอนโซเชียล สติกเกอร์ไฮไลต์ และกรอบเฟรมวิดีโอ',
-        tip: '🏁 กดสลับสีพื้นหลัง (สว่าง / มืด / โปร่งใส) เพื่อตรวจสอบความคมของขอบภาพก่อนดาวน์โหลด',
-        mascotBadge: '🖌️',
-        mascotQuote: 'เช็กขอบภาพบนพื้นหลังโปร่งใสแล้วกดโหลดไปแปะบนคลิปได้เลย!',
-        subCategories: ['สติกเกอร์ & ไฮไลต์', 'ไอคอนปุ่มกด/ติดตาม', 'กรอบเฟรม & เส้นขอบ', 'เวกเตอร์ประกอบคลิป'],
-        formats: ['.png', '.svg'],
-        countText: '215 ไฟล์'
+        id: "graphics",
+        title: "ภาพ & กราฟิก",
+        desc: "องค์ประกอบ PNG โปร่งใส ไอคอน และสติกเกอร์ประกอบคลิป",
+        bg: "#D7F5E6",
+        icon: "🖼️",
+        mascotMsg: "ภาพ & กราฟิก! สลับพื้นหลังขาว/ดำ/โปร่งใสเพื่อเช็กขอบภาพ",
+        tip: "ตรวจสอบขอบภาพบนพื้นหลังเข้มและสว่างก่อนเรนเดอร์จริง"
       },
       {
-        id: 'luts',
-        name: 'สี & เอฟเฟกต์ภาพ',
-        engName: 'LUTs & Overlays',
-        emoji: '🎨',
-        bgClass: 'bg-pastelLavender',
-        desc: 'ไฟล์ LUTs ปรับโทนสีภาพยนตร์ ฟิล์มเกรน แสงแฟลร์ ฝุ่นละออง และเอฟเฟกต์ซ้อนทับ',
-        tip: '↔️ ลากแถบเลื่อนซ้าย-ขวาบนภาพตัวอย่างเพื่อเปรียบเทียบ Before / After ของโทนสีจริง!',
-        mascotBadge: '🎞️',
-        mascotQuote: 'ลองลากแถบ Before / After เทียบสีดูสิ ต่างกันชัดเจนเลย!',
-        subCategories: ['Cinematic LUTs', 'Warm & Vlog Tone', 'Film Grain & Dust', 'Light Leaks แสงแฟลร์'],
-        formats: ['.cube', '.mp4'],
-        countText: '110 ไฟล์'
+        id: "color",
+        title: "สี & เอฟเฟกต์ภาพ",
+        desc: "LUTs ปรับสี ฟิล์มเกรน แสงแฟลร์ และโอเวอร์เลย์",
+        bg: "#E9DFFC",
+        icon: "🎨",
+        mascotMsg: "สี & เอฟเฟกต์ภาพ! ลากแถบ Before / After เทียบสีได้เลย",
+        tip: "ปรับ Exposure และ White Balance ของคลิปให้สมดุลก่อนใส่ LUTs"
       },
       {
-        id: 'guides',
-        name: 'ใบงาน & แบบฝึกหัด',
-        engName: 'Guides & Practice Packs',
-        emoji: '📘',
-        bgClass: 'bg-pastelPink',
-        desc: 'โจทย์ฝึกตัดต่อรายคาบ ชีตสรุปคีย์ลัด โครงเรื่อง/สคริปต์ตัวอย่าง และเช็กลิสต์ก่อนส่งงาน',
-        tip: '📖 กดปุ่ม "เปิดอ่านตัวอย่าง" เพื่อดูเนื้อหาใบงานหรือตารางคีย์ลัดแบบเต็มก่อนดาวน์โหลด',
-        mascotBadge: '📝',
-        mascotQuote: 'มีทั้งโจทย์ฝึกตัดต่อและตารางคีย์ลัด เหมาะสำหรับฝึกฝีมือสุดๆ!',
-        subCategories: ['โจทย์ฝึกปฏิบัติ', 'ชีตสรุปคีย์ลัด', 'สคริปต์ & Storyboard', 'เช็กลิสต์ส่งออกไฟล์'],
-        formats: ['.txt', '.html'],
-        countText: '65 ชุด'
+        id: "guides",
+        title: "ใบงาน / คู่มือ / แบบฝึกหัด",
+        desc: "โจทย์ฝึกตัดต่อรายคาบ ชีตคีย์ลัด และโครงเรื่องตัวอย่าง",
+        bg: "#FFDCE8",
+        icon: "📘",
+        mascotMsg: "ใบงาน & แบบฝึกหัด! เปิดอ่านตัวอย่างหรือโหลดโจทย์ไปฝึกทำ",
+        tip: "ลองจับเวลาทำโจทย์สั้นๆ เพื่อฝึกความคล่องในการจัดไทม์ไลน์"
       }
     ];
 
     const ASSETS = [
-      // --- 1. VIDEO & FOOTAGE ---
-      {
-        id: 'vid-01',
-        category: 'video',
-        title: 'Subscribe Button Green Screen',
-        subCategory: 'Green Screen / Alpha',
-        format: '.mov',
-        size: '14.2 MB',
-        projectType: 'คอนเทนต์สั้น',
-        fileName: 'CutLab_Subscribe_GreenScreen.svg',
-        videoTheme: 'greenscreen',
-        badge: 'ยอดนิยม',
-        tipAfterDownload: 'วางไฟล์บน Track V2 แล้วใช้เอฟเฟกต์ Ultra Key / Chroma Key ดูดสีเขียวออก'
-      },
-      {
-        id: 'vid-02',
-        category: 'video',
-        title: 'Warm Studio Desk B-Roll Loop',
-        subCategory: 'B-Roll บรรยากาศ',
-        format: '.mp4',
-        size: '28.5 MB',
-        projectType: 'สารคดี',
-        fileName: 'CutLab_StudioDesk_BRoll.svg',
-        videoTheme: 'broll',
-        badge: '4K 60fps',
-        tipAfterDownload: 'เหมาะสำหรับใช้เป็นภาพเปิดเรื่อง (Establishing Shot) หรือภาพรองขณะเสียงบรรยาย'
-      },
-      {
-        id: 'vid-03',
-        category: 'video',
-        title: 'Abstract Cream Grid Motion BG',
-        subCategory: 'Motion Background',
-        format: '.mp4',
-        size: '18.0 MB',
-        projectType: 'ฝึกปฏิบัติ',
-        fileName: 'CutLab_CreamGrid_MotionBG.svg',
-        videoTheme: 'motionbg',
-        badge: 'Loopable',
-        tipAfterDownload: 'ใช้เป็นพื้นหลังสำหรับวางข้อความสรุปประเด็น หรือคลิปอธิบายความรู้'
-      },
-      {
-        id: 'vid-04',
-        category: 'video',
-        title: 'Practice Cut: Coffee Shop Sequence',
-        subCategory: 'ฟุตเทจฝึกตัดต่อ',
-        format: '.mp4',
-        size: '42.0 MB',
-        projectType: 'ฝึกปฏิบัติ',
-        fileName: 'CutLab_Practice_CoffeeSequence.svg',
-        videoTheme: 'practice',
-        badge: 'โจทย์ฝึกตัด',
-        tipAfterDownload: 'ลองฝึกตัดสลับมุมกว้าง-มุมแคบ (Wide to Tight) ให้ตรงจังหวะดนตรี'
-      },
+      { id: "v1", cat: "video", title: "Neon Grid Loop", format: ".MP4", size: "12.4 MB", usage: "คอนเทนต์สั้น / โซเชียล", freq: 220 },
+      { id: "v2", cat: "video", title: "Green Screen Transition Wipe", format: ".MOV", size: "18.1 MB", usage: "เล่าเรื่อง / สารคดี", freq: 310 },
+      { id: "v3", cat: "video", title: "Studio B-Roll Camera Pan", format: ".MP4", size: "24.0 MB", usage: "ฝึกปฏิบัติ / ชั้นเรียน", freq: 180 },
 
-      // --- 2. AUDIO & SFX ---
-      {
-        id: 'aud-01',
-        category: 'audio',
-        title: 'Fast Air Whoosh Transition',
-        subCategory: 'Transition Whoosh',
-        format: '.wav',
-        size: '1.8 MB',
-        projectType: 'คอนเทนต์สั้น',
-        fileName: 'CutLab_Fast_Air_Whoosh.wav',
-        soundType: 'whoosh',
-        duration: '0:01',
-        badge: 'ขายดีอันดับ 1',
-        tipAfterDownload: 'วางกึ่งกลางรอยต่อระหว่าง 2 คลิป (Cut Point) เพื่อให้จังหวะเปลี่ยนภาพลื่นไหล'
-      },
-      {
-        id: 'aud-02',
-        category: 'audio',
-        title: 'Cute Bubble Pop Notification',
-        subCategory: 'UI & Pop SFX',
-        format: '.wav',
-        size: '0.9 MB',
-        projectType: 'คอนเทนต์สั้น',
-        fileName: 'CutLab_Bubble_Pop.wav',
-        soundType: 'pop',
-        duration: '0:01',
-        badge: 'ใช้บ่อย',
-        tipAfterDownload: 'ใส่พร้อมกับจังหวะที่สติกเกอร์หรือข้อความเด้งขึ้นมาบนหน้าจอ'
-      },
-      {
-        id: 'aud-03',
-        category: 'audio',
-        title: 'Cinematic Tension Riser',
-        subCategory: 'Cinematic Riser',
-        format: '.wav',
-        size: '3.4 MB',
-        projectType: 'สารคดี',
-        fileName: 'CutLab_Tension_Riser.wav',
-        soundType: 'riser',
-        duration: '0:03',
-        badge: '24-bit WAV',
-        tipAfterDownload: 'วางไล่ระดับเสียงขึ้นก่อนเข้าฉากสำคัญหรือช่วงเฉลยเนื้อหา'
-      },
-      {
-        id: 'aud-04',
-        category: 'audio',
-        title: 'Lo-Fi Warm Chord Beat Loop',
-        subCategory: 'Ambience & Beat',
-        format: '.mp3',
-        size: '4.1 MB',
-        projectType: 'ฝึกปฏิบัติ',
-        fileName: 'CutLab_LoFi_Chord_Loop.wav',
-        soundType: 'chord',
-        duration: '0:03',
-        badge: 'Royalty-Free',
-        tipAfterDownload: 'ลดระดับเสียงเพลงคลอไว้ที่ประมาณ -18dB ถึง -22dB เพื่อไม่ให้กลบเสียงพูด'
-      },
+      { id: "a1", cat: "audio", title: "Swift Whoosh Cut", format: ".WAV", size: "1.8 MB", usage: "คอนเทนต์สั้น / โซเชียล", wave: [30, 80, 100, 65, 25], freq: 440 },
+      { id: "a2", cat: "audio", title: "Soft Pop Accent", format: ".WAV", size: "0.9 MB", usage: "ฝึกปฏิบัติ / ชั้นเรียน", wave: [20, 95, 45, 20, 15], freq: 660 },
+      { id: "a3", cat: "audio", title: "Warm Studio Ambience", format: ".MP3", size: "4.2 MB", usage: "เล่าเรื่อง / สารคดี", wave: [45, 55, 50, 60, 40], freq: 260 },
 
-      // --- 3. TEMPLATES & MOTION ---
-      {
-        id: 'tpl-01',
-        category: 'templates',
-        title: 'Modern Pill Lower Third',
-        subCategory: 'Lower Third แถบชื่อ',
-        format: '.mogrt',
-        size: '4.6 MB',
-        projectType: 'สารคดี',
-        fileName: 'CutLab_Modern_LowerThird.svg',
-        motionText: 'สมชาย ใจดี • นักตัดต่อวิดีโอ',
-        motionColor: '#F5B82E',
-        badge: 'แก้ข้อความได้',
-        tipAfterDownload: 'ลากวางบนไทม์ไลน์แล้วแก้ไขชื่อ-ตำแหน่งในแถบ Essential Graphics ได้ทันที'
-      },
-      {
-        id: 'tpl-02',
-        category: 'templates',
-        title: 'Bold Chapter Title Card',
-        subCategory: 'Title เปิดเรื่อง',
-        format: '.drfx',
-        size: '6.2 MB',
-        projectType: 'ฝึกปฏิบัติ',
-        fileName: 'CutLab_Chapter_Title.svg',
-        motionText: 'EP.01 เทคนิคการเล่าเรื่องด้วยภาพ',
-        motionColor: '#7CC6FE',
-        badge: '1080p / 4K',
-        tipAfterDownload: 'เหมาะสำหรับแบ่งหัวข้อย่อยในคลิปสอนหรือวิดีโอยาว'
-      },
-      {
-        id: 'tpl-03',
-        category: 'templates',
-        title: 'Highlight Callout Pointer',
-        subCategory: 'Callout ชี้จุดสำคัญ',
-        format: '.mp4',
-        size: '3.1 MB',
-        projectType: 'คอนเทนต์สั้น',
-        fileName: 'CutLab_Callout_Pointer.svg',
-        motionText: 'สังเกตจุดนี้บนไทม์ไลน์!',
-        motionColor: '#FF9E9E',
-        badge: 'มีเสียงในตัว',
-        tipAfterDownload: 'ปรับตำแหน่ง X/Y ให้ชี้ไปยังปุ่มหรือรายละเอียดที่ต้องการเน้น'
-      },
+      { id: "m1", cat: "motion", title: "Clean Lower Third Bar", format: ".JSON", size: "640 KB", usage: "เล่าเรื่อง / สารคดี", label: "ชื่อพิธีกร · ตำแหน่ง" },
+      { id: "m2", cat: "motion", title: "Bounce Title Pop", format: ".JSON", size: "780 KB", usage: "คอนเทนต์สั้น / โซเชียล", label: "หัวข้อคลิปสั้น!" },
+      { id: "m3", cat: "motion", title: "Chapter Marker Badge", format: ".JSON", size: "520 KB", usage: "ฝึกปฏิบัติ / ชั้นเรียน", label: "ตอนที่ 01" },
 
-      // --- 4. IMAGES & GRAPHICS ---
-      {
-        id: 'gfx-01',
-        category: 'graphics',
-        title: 'Hand-Drawn Yellow Arrow Pack',
-        subCategory: 'สติกเกอร์ & ไฮไลต์',
-        format: '.png',
-        size: '1.2 MB',
-        projectType: 'คอนเทนต์สั้น',
-        fileName: 'CutLab_Yellow_Arrow.svg',
-        graphicShape: 'arrow',
-        badge: 'PNG โปร่งใส',
-        tipAfterDownload: 'ใส่เอฟเฟกต์ Wiggle หรือหมุนเล็กน้อยเพื่อให้ลูกศรดูมีชีวิตชีวา'
-      },
-      {
-        id: 'gfx-02',
-        category: 'graphics',
-        title: 'Recording REC Camera Frame',
-        subCategory: 'กรอบเฟรม & เส้นขอบ',
-        format: '.svg',
-        size: '0.4 MB',
-        projectType: 'สารคดี',
-        fileName: 'CutLab_REC_Frame.svg',
-        graphicShape: 'recframe',
-        badge: 'Vector คมชัด',
-        tipAfterDownload: 'วางไว้บน Track บนสุดของวิดีโอเพื่อจำลองมุมมองผ่านช่องมองภาพกล้อง'
-      },
-      {
-        id: 'gfx-03',
-        category: 'graphics',
-        title: 'Creator Badge & Star Sticker',
-        subCategory: 'ไอคอนปุ่มกด/ติดตาม',
-        format: '.png',
-        size: '1.5 MB',
-        projectType: 'ฝึกปฏิบัติ',
-        fileName: 'CutLab_Creator_StarBadge.svg',
-        graphicShape: 'badge',
-        badge: '300 DPI',
-        tipAfterDownload: 'ใช้ประกอบช่วงท้ายคลิป (End Screen) เพื่อชวนผู้ชมกดติดตาม'
-      },
+      { id: "g1", cat: "graphics", title: "Rec Badge Transparent", format: ".PNG", size: "1.1 MB", usage: "คอนเทนต์สั้น / โซเชียล", badge: "● REC" },
+      { id: "g2", cat: "graphics", title: "Timeline Marker Pin", format: ".PNG", size: "850 KB", usage: "ฝึกปฏิบัติ / ชั้นเรียน", badge: "📍 MARK" },
+      { id: "g3", cat: "graphics", title: "Highlight Arrow Set", format: ".SVG", size: "310 KB", usage: "เล่าเรื่อง / สารคดี", badge: "➔ 重点" },
 
-      // --- 5. LUTS & OVERLAYS ---
-      {
-        id: 'lut-01',
-        category: 'luts',
-        title: 'Golden Sunset Warmth LUT',
-        subCategory: 'Warm & Vlog Tone',
-        format: '.cube',
-        size: '2.1 MB',
-        projectType: 'คอนเทนต์สั้น',
-        fileName: 'CutLab_Golden_Sunset.cube',
-        lutPreset: 'warm',
-        filterCss: 'sepia(0.38) saturate(1.55) contrast(1.08) brightness(1.04)',
-        badge: '33-Point .CUBE',
-        tipAfterDownload: 'สร้าง Adjustment Layer ครอบคลิปทั้งหมดแล้วโหลดไฟล์ .cube ในช่อง Creative LUT'
-      },
-      {
-        id: 'lut-02',
-        category: 'luts',
-        title: 'Teal & Amber Cinema Look',
-        subCategory: 'Cinematic LUTs',
-        format: '.cube',
-        size: '2.4 MB',
-        projectType: 'สารคดี',
-        fileName: 'CutLab_Teal_Amber_Cinema.cube',
-        lutPreset: 'cinema',
-        filterCss: 'contrast(1.22) saturate(1.25) hue-rotate(-12deg) brightness(0.96)',
-        badge: 'โทนภาพยนตร์',
-        tipAfterDownload: 'ปรับค่า Intensity ของ LUT ประมาณ 60-80% เพื่อรักษาสีผิวให้ดูเป็นธรรมชาติ'
-      },
-      {
-        id: 'lut-03',
-        category: 'luts',
-        title: 'Vintage 16mm Film Fade',
-        subCategory: 'Film Grain & Dust',
-        format: '.cube',
-        size: '1.9 MB',
-        projectType: 'ฝึกปฏิบัติ',
-        fileName: 'CutLab_Vintage_16mm.cube',
-        lutPreset: 'vintage',
-        filterCss: 'sepia(0.45) contrast(0.92) brightness(1.06) saturate(0.85)',
-        badge: 'Retro Style',
-        tipAfterDownload: 'เหมาะกับคลิปแนวความทรงจำ ย้อนอดีต หรือวิดีโอบันทึกการเดินทาง'
-      },
+      { id: "c1", cat: "color", title: "Warm Amber Cinema LUT", format: ".CUBE", size: "420 KB", usage: "เล่าเรื่อง / สารคดี", afterTone: "linear-gradient(135deg, #f59e0b, #b45309)" },
+      { id: "c2", cat: "color", title: "Crisp Teal & Gold LUT", format: ".CUBE", size: "410 KB", usage: "คอนเทนต์สั้น / โซเชียล", afterTone: "linear-gradient(135deg, #0d9488, #eab308)" },
+      { id: "c3", cat: "color", title: "35mm Film Grain Overlay", format: ".MOV", size: "15.6 MB", usage: "ฝึกปฏิบัติ / ชั้นเรียน", afterTone: "linear-gradient(135deg, #78350f, #d97706)" },
 
-      // --- 6. GUIDES & PRACTICE PACKS ---
+      { id: "gd1", cat: "guides", title: "โจทย์ฝึกตัดต่อจังหวะเล่าเรื่อง (60 วิ)", format: ".TXT", size: "120 KB", usage: "ฝึกปฏิบัติ / ชั้นเรียน", sheet: "โจทย์ฝึกปฏิบัติ: ตัดต่อคลิปความยาว 60 วินาที\n1. เปิดฉากด้วยภาพกว้าง 3 วินาที\n2. แทรกเสียง Whoosh ก่อนเปลี่ยนฉาก\n3. ใส่ไตเติลแนะนำตัวละครใน 10 วินาทีแรก" },
+      { id: "gd2", cat: "guides", title: "ชีตสรุปคีย์ลัดตัดต่อเบื้องต้น", format: ".TXT", size: "95 KB", usage: "ฝึกปฏิบัติ / ชั้นเรียน", sheet: "คีย์ลัดสำคัญ:\n- เครื่องมือตัด (Razor): C\n- เครื่องมือเลือก (Selection): V\n- เล่น/หยุดไทม์ไลน์: Spacebar\n- ย้อนกลับ: Ctrl/Cmd + Z" },
+      { id: "gd3", cat: "guides", title: "เช็กลิสต์ตรวจงานก่อนส่งออกไฟล์", format: ".TXT", size: "110 KB", usage: "เล่าเรื่อง / สารคดี", sheet: "เช็กลิสต์ก่อน Export:\n- ระดับเสียงหลักอยู่ราว -12 ถึง -6 dB\n- ไม่พบเฟรมดำหรือภาพค้างท้ายคลิป\n- ตรวจสอบตัวสะกดบนไตเติลครบถ้วน" }
+    ];
+
+    const BUNDLES = [
       {
-        id: 'gui-01',
-        category: 'guides',
-        title: 'ใบงานที่ 1: การเรียงไทม์ไลน์และจังหวะตัด',
-        subCategory: 'โจทย์ฝึกปฏิบัติ',
-        format: '.txt',
-        size: '0.2 MB',
-        projectType: 'ฝึกปฏิบัติ',
-        fileName: 'CutLab_Worksheet_01_Timeline.txt',
-        badge: 'ใบงานพร้อมเฉลย',
-        guideContent: `【 ใบงานฝึกปฏิบัติที่ 1: การเรียงไทม์ไลน์และจังหวะการตัด (Pacing & Rhythm) 】\n\nวัตถุประสงค์:\n1. ผู้เรียนสามารถจัดเรียงคลิป A-Roll และ B-Roll บนไทม์ไลน์ได้อย่างเป็นระบบ\n2. ฝึกใช้เทคนิค J-Cut และ L-Cut เพื่อเชื่อมเสียงข้ามรอยต่อภาพ\n\nขั้นตอนการฝึก:\n• ขั้นที่ 1: นำฟุตเทจสัมภาษณ์วางบน Track V1 / A1\n• ขั้นที่ 2: ตัดช่วงเว้นวรรคที่เงียบเกินไปออก (Ripple Delete)\n• ขั้นที่ 3: วางคลิป B-Roll บน Track V2 ทับช่วงอธิบาย 3-5 วินาที\n• ขั้นที่ 4: ใส่ซาวด์ Whoosh เบาๆ ตรงจุดเปลี่ยนฉากสำคัญ`,
-        tipAfterDownload: 'เปิดอ่านโจทย์ในไฟล์ที่ดาวน์โหลด แล้วลองจับเวลาฝึกตัดต่อภายใน 20 นาที'
+        id: "b1",
+        tag: "ยอดนิยม",
+        title: "ชุดเริ่มต้นตัดคลิปเล่าเรื่อง",
+        desc: "รวมเสียง Ambience, ไตเติล Lower Third และ Warm Amber LUT",
+        filename: "CutLab_Story_Starter_Pack.txt"
       },
       {
-        id: 'gui-02',
-        category: 'guides',
-        title: 'ตารางรวมคีย์ลัดงานตัดต่อ (Shortcut Cheat Sheet)',
-        subCategory: 'ชีตสรุปคีย์ลัด',
-        format: '.txt',
-        size: '0.1 MB',
-        projectType: 'ฝึกปฏิบัติ',
-        fileName: 'CutLab_Editing_Shortcuts.txt',
-        badge: 'พกติดโต๊ะ',
-        guideContent: `【 ตารางรวมคีย์ลัดเพิ่มความเร็วงานตัดต่อ (Premiere Pro / DaVinci Resolve) 】\n\n• C / B  = ใบมีดตัดคลิป (Razor / Blade Tool)\n• V / A  = ลูกศรเลือกคลิป (Selection Tool)\n• J / K / L = เล่นถอยหลัง / หยุด / เล่นเดินหน้าเร็ว\n• Ctrl+K / Ctrl+B = ตัดคลิปตรงตำแหน่ง Playhead ทันที\n• Q / W = ตัดหัวหรือท้ายคลิปพร้อมดูดช่องว่างอัตโนมัติ (Ripple Trim)\n• M = ปักหมุด Marker จดบันทึกจุดสำคัญบนไทม์ไลน์`,
-        tipAfterDownload: 'ฝึกใช้คีย์ลัด Q และ W แทนการใช้เมาส์ลาก จะช่วยลดเวลาตัดต่อได้เกือบครึ่ง!'
+        id: "b2",
+        tag: "สายไว",
+        title: "แพ็กเสียงและทรานซิชันพื้นฐาน",
+        desc: "รวม Swift Whoosh, Soft Pop และ Green Screen Wipe",
+        filename: "CutLab_SFX_Transition_Pack.txt"
       },
       {
-        id: 'gui-03',
-        category: 'guides',
-        title: 'เช็กลิสต์ตรวจสอบคุณภาพก่อน Export ส่งงาน',
-        subCategory: 'เช็กลิสต์ส่งออกไฟล์',
-        format: '.html',
-        size: '0.3 MB',
-        projectType: 'สารคดี',
-        fileName: 'CutLab_Export_Checklist.txt',
-        badge: 'QC Checklist',
-        guideContent: `【 เช็กลิสต์ตรวจสอบงานก่อนกด Export วิดีโอ 】\n\n[✓] 1. ตรวจสอบระดับเสียงพูดให้อยู่ระหว่าง -6dB ถึง -12dB (ไม่แตกพร่า)\n[✓] 2. เช็กเฟรมดำคั่นกลางระหว่างคลิป (Black Frames)\n[✓] 3. ตรวจสอบตัวสะกดในไตเติลและแถบชื่อ Lower Third\n[✓] 4. ตั้งค่าความละเอียด 1920x1080 (หรือ 3840x2160) เฟรมเรตตรงกับฟุตเทจต้นฉบับ\n[✓] 5. เลือก Format H.264 (.mp4) เพื่อความคมชัดและขนาดไฟล์ที่เหมาะสม`,
-        tipAfterDownload: 'ตรวจสอบครบทั้ง 5 ข้อก่อนกด Render จะช่วยป้องกันข้อผิดพลาดที่ต้องกลับมาแก้ซ้ำ'
+        id: "b3",
+        tag: "ฝึกหัด",
+        title: "ชุดโจทย์ + คีย์ลัดสำหรับฝึกทำ",
+        desc: "รวมโจทย์ 60 วิ ชีตคีย์ลัด และเช็กลิสต์ก่อน Export",
+        filename: "CutLab_Practice_Workbook_Pack.txt"
       }
     ];
 
-    const STARTER_BUNDLES = [
-      {
-        id: 'bun-01',
-        title: 'ชุดเริ่มต้นตัดคลิปเล่าเรื่อง (Storytelling Kit)',
-        desc: 'รวม B-Roll + แถบชื่อ Lower Third + เสียง Whoosh + ใบงานฝึกเรียงไทม์ไลน์',
-        itemsCount: '4 รายการในชุด',
-        color: 'bg-pastelYellow',
-        emoji: '🎬',
-        fileName: 'CutLab_Starter_Storytelling_Pack.txt',
-        bundleContent: 'ชุดรวมไฟล์แนะนำ: Storytelling Starter Kit\nประกอบด้วย:\n1. Warm Studio Desk B-Roll\n2. Modern Pill Lower Third\n3. Fast Air Whoosh Transition\n4. ใบงานฝึกเรียงไทม์ไลน์'
-      },
-      {
-        id: 'bun-02',
-        title: 'แพ็กเสียงและทรานซิชันพื้นฐาน (Creator Audio & SFX)',
-        desc: 'ซาวด์เอฟเฟกต์เปลี่ยนฉาก Pop, Whoosh, Riser และดนตรีจังหวะ Lo-Fi',
-        itemsCount: '4 ไฟล์เสียง .WAV',
-        color: 'bg-pastelBlue',
-        emoji: '🎧',
-        fileName: 'CutLab_Creator_SFX_Pack.wav',
-        soundType: 'whoosh'
-      },
-      {
-        id: 'bun-03',
-        title: 'ชุดโทนสีอบอุ่น + กราฟิกตกแต่งคลิป (Vlog Color & Sticker)',
-        desc: 'LUTs โทนแสงเย็น Golden Sunset พร้อมลูกศรและกรอบ REC โปร่งใส',
-        itemsCount: '3 รายการในชุด',
-        color: 'bg-pastelMint',
-        emoji: '🎨',
-        fileName: 'CutLab_Vlog_Color_Pack.cube',
-        lutPreset: 'warm'
-      }
-    ];
-
-    // -------------------------------------------------------------
-    // 2. STATE MANAGEMENT
-    // -------------------------------------------------------------
-    let currentCategory = null;
-    let totalDownloaded = 0;
-    let activeFilters = {
-      subCategories: [],
-      formats: [],
-      projectTypes: []
-    };
-    let audioCtx = null;
-
-    // -------------------------------------------------------------
-    // 3. INTERACTIVE EYE-TRACKING MASCOT
-    // -------------------------------------------------------------
-    document.addEventListener('mousemove', (e) => {
-      const svg = document.getElementById('heroMascotSvg');
-      if (!svg) return;
-      const rect = svg.getBoundingClientRect();
-      if (rect.width === 0) return;
-
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-
-      const dx = e.clientX - centerX;
-      const dy = e.clientY - centerY;
-      const angle = Math.atan2(dy, dx);
-      const maxOffset = 4.5;
-      const distance = Math.min(maxOffset, Math.hypot(dx, dy) / 35);
-
-      const moveX = Math.cos(angle) * distance;
-      const moveY = Math.sin(angle) * distance;
-
-      const leftPupil = document.getElementById('leftPupil');
-      const rightPupil = document.getElementById('rightPupil');
-      if (leftPupil && rightPupil) {
-        leftPupil.setAttribute('transform', `translate(${moveX.toFixed(2)}, ${moveY.toFixed(2)})`);
-        rightPupil.setAttribute('transform', `translate(${moveX.toFixed(2)}, ${moveY.toFixed(2)})`);
-      }
-    });
-
-    function updateMascotSpeech(text) {
-      const bubble = document.getElementById('mascotSpeechBubble');
-      if (!bubble) return;
-      bubble.textContent = `"${text}"`;
-      bubble.classList.add('scale-105');
-      setTimeout(() => bubble.classList.remove('scale-105'), 180);
-    }
-
-    // -------------------------------------------------------------
-    // 4. WEB AUDIO API: REAL SYNTHESIZED SFX FOR TESTING
-    // -------------------------------------------------------------
-    function getAudioContext() {
-      if (!audioCtx) {
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        audioCtx = new AudioContextClass();
-      }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
-      return audioCtx;
-    }
-
-    function playPreviewSound(type, cardBtnEl) {
-      try {
-        const ctx = getAudioContext();
-        const now = ctx.currentTime;
-
-        // Visual waveform toggle
-        const card = cardBtnEl.closest('.asset-card');
-        if (card) {
-          card.classList.add('wave-playing');
-          setTimeout(() => card.classList.remove('wave-playing'), 1200);
-        }
-
-        if (type === 'whoosh') {
-          // Filtered white noise sweep
-          const bufferSize = ctx.sampleRate * 0.7;
-          const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-          const data = buffer.getChannelData(0);
-          for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-
-          const noise = ctx.createBufferSource();
-          noise.buffer = buffer;
-
-          const filter = ctx.createBiquadFilter();
-          filter.type = 'bandpass';
-          filter.frequency.setValueAtTime(180, now);
-          filter.frequency.exponentialRampToValueAtTime(1800, now + 0.32);
-          filter.frequency.exponentialRampToValueAtTime(220, now + 0.68);
-          filter.Q.value = 2.5;
-
-          const gain = ctx.createGain();
-          gain.gain.setValueAtTime(0.01, now);
-          gain.gain.linearRampToValueAtTime(0.45, now + 0.3);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.68);
-
-          noise.connect(filter);
-          filter.connect(gain);
-          gain.connect(ctx.destination);
-          noise.start(now);
-        } else if (type === 'pop') {
-          // Cute pitch-bend sine pop
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(320, now);
-          osc.frequency.exponentialRampToValueAtTime(920, now + 0.12);
-
-          gain.gain.setValueAtTime(0.4, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
-
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start(now);
-          osc.stop(now + 0.17);
-        } else if (type === 'riser') {
-          // Rising cinematic synth swell
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(110, now);
-          osc.frequency.exponentialRampToValueAtTime(660, now + 1.1);
-
-          const filter = ctx.createBiquadFilter();
-          filter.type = 'lowpass';
-          filter.frequency.setValueAtTime(300, now);
-          filter.frequency.exponentialRampToValueAtTime(2400, now + 1.1);
-
-          gain.gain.setValueAtTime(0.02, now);
-          gain.gain.linearRampToValueAtTime(0.28, now + 0.95);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 1.15);
-
-          osc.connect(filter);
-          filter.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start(now);
-          osc.stop(now + 1.16);
-        } else {
-          // Warm Lo-Fi chord
-          const freqs = [261.63, 329.63, 392.00, 493.88]; // Cmaj7
-          freqs.forEach((f) => {
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(f, now);
-            gain.gain.setValueAtTime(0.01, now);
-            gain.gain.linearRampToValueAtTime(0.1, now + 0.15);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 1.1);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start(now);
-            osc.stop(now + 1.12);
-          });
-        }
-      } catch (err) {
-        console.warn('Audio playback notice:', err);
-      }
-    }
-
-    // -------------------------------------------------------------
-    // 5. REAL INSTANT FILE DOWNLOAD GENERATOR (TESTABLE FILES)
-    // -------------------------------------------------------------
-    function createWavBlob(soundType = 'whoosh') {
-      const sampleRate = 22050;
-      const duration = 0.8;
-      const numSamples = Math.floor(sampleRate * duration);
-      const buffer = new ArrayBuffer(44 + numSamples * 2);
-      const view = new DataView(buffer);
-
-      const writeStr = (offset, str) => {
-        for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
-      };
-
-      writeStr(0, 'RIFF');
-      view.setUint32(4, 36 + numSamples * 2, true);
-      writeStr(8, 'WAVE');
-      writeStr(12, 'fmt ');
-      view.setUint32(16, 16, true);
-      view.setUint16(20, 1, true);
-      view.setUint16(22, 1, true);
-      view.setUint32(24, sampleRate, true);
-      view.setUint32(28, sampleRate * 2, true);
-      view.setUint16(32, 2, true);
-      view.setUint16(34, 16, true);
-      writeStr(36, 'data');
-      view.setUint32(40, numSamples * 2, true);
-
-      for (let i = 0; i < numSamples; i++) {
-        const t = i / sampleRate;
-        const env = Math.sin((t / duration) * Math.PI);
-        let sample = 0;
-        if (soundType === 'pop') {
-          const freq = 320 + (t / duration) * 600;
-          sample = Math.sin(2 * Math.PI * freq * t) * Math.exp(-t * 14);
-        } else if (soundType === 'riser') {
-          const freq = 140 + Math.pow(t / duration, 2) * 520;
-          sample = Math.sin(2 * Math.PI * freq * t) * env * 0.7;
-        } else {
-          // Whoosh-like filtered noise
-          sample = (Math.random() * 2 - 1) * env * 0.6;
-        }
-        const intSample = Math.max(-32768, Math.min(32767, Math.floor(sample * 32767)));
-        view.setInt16(44 + i * 2, intSample, true);
-      }
-
-      return new Blob([buffer], { type: 'audio/wav' });
-    }
-
-    function createCubeLutBlob(title) {
-      const content = `# Created by CutLab Digital Media Hub\nTITLE "${title}"\nLUT_3D_SIZE 2\n0.02 0.01 0.00\n0.98 0.88 0.72\n0.05 0.92 0.78\n1.00 0.96 0.85\n0.04 0.08 0.90\n0.95 0.15 0.88\n0.08 0.95 0.92\n1.00 0.99 0.96\n`;
-      return new Blob([content], { type: 'text/plain;charset=utf-8' });
-    }
-
-    function createSvgAssetBlob(title, accent = '#F5B82E') {
-      const svgStr = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450">
-        <rect width="800" height="450" rx="28" fill="#2B2118"/>
-        <rect x="36" y="36" width="728" height="378" rx="20" fill="none" stroke="${accent}" stroke-width="6" stroke-dasharray="14 10"/>
-        <circle cx="95" cy="95" r="16" fill="#FF5F56"/>
-        <text x="125" y="103" fill="#FFFDF9" font-family="sans-serif" font-size="24" font-weight="bold">CUTLAB STUDIO ASSET</text>
-        <text x="400" y="235" text-anchor="middle" fill="${accent}" font-family="sans-serif" font-size="34" font-weight="bold">${title}</text>
-        <text x="400" y="285" text-anchor="middle" fill="#FAF6EE" font-family="sans-serif" font-size="20">Ready to Drop Into Your Editing Timeline</text>
-      </svg>`;
-      return new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
-    }
-
-    function triggerInstantDownload(item, btnElement) {
-      // Visual button state change
-      if (btnElement) {
-        const originalHtml = btnElement.innerHTML;
-        btnElement.disabled = true;
-        btnElement.innerHTML = `<span class="animate-spin inline-block">⏳</span> <span>กำลังดาวน์โหลด...</span>`;
-        btnElement.classList.add('bg-mustard', 'text-espresso');
-
-        setTimeout(() => {
-          btnElement.innerHTML = `<span>✓ ดาวน์โหลดแล้ว</span>`;
-          setTimeout(() => {
-            btnElement.disabled = false;
-            btnElement.innerHTML = originalHtml;
-            btnElement.classList.remove('bg-mustard', 'text-espresso');
-          }, 1600);
-        }, 450);
-      }
-
-      // Generate genuine downloadable file blob based on asset type
-      let blob;
-      const fName = item.fileName || `${item.title.replace(/\s+/g, '_')}.txt`;
-
-      if (fName.endsWith('.wav')) {
-        blob = createWavBlob(item.soundType || 'whoosh');
-      } else if (fName.endsWith('.cube')) {
-        blob = createCubeLutBlob(item.title);
-      } else if (fName.endsWith('.svg')) {
-        blob = createSvgAssetBlob(item.title, item.motionColor || '#F5B82E');
-      } else {
-        const textBody = item.guideContent || item.bundleContent || `CutLab Media Asset: ${item.title}\nCategory: ${item.category}\nUsage Tip: ${item.tipAfterDownload || 'ลากวางลงไทม์ไลน์เพื่อใช้งานได้ทันที'}`;
-        blob = new Blob([textBody], { type: 'text/plain;charset=utf-8' });
-      }
-
+    // ดาวน์โหลดไฟล์ได้ทันทีในคลิกเดียว
+    function instantDownload(filename, contentText) {
+      const blob = new Blob([contentText], { type: "text/plain;charset=utf-8" });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
-      a.download = fName;
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
 
-      // Update counter & mascot
-      totalDownloaded++;
-      document.getElementById('downloadCounter').textContent = totalDownloaded;
-      updateMascotSpeech(`โหลด "${item.title}" เรียบร้อย! ลากลงไทม์ไลน์ได้เลย 🚀`);
-
-      // Show toast notification
-      showDownloadToast(item.title, fName, item.tipAfterDownload || 'ไฟล์พร้อมใช้งานบนไทม์ไลน์แล้ว!');
+      const catObj = CATEGORIES.find(c => filename.toLowerCase().includes(c.id)) || CATEGORIES[1];
+      showToast(`ดาวน์โหลด "${filename}" แล้ว ✓`, `เคล็ดลับ: ${catObj.tip}`);
     }
 
-    function showDownloadToast(title, fileName, tip) {
-      const container = document.getElementById('toastContainer');
-      const toast = document.createElement('div');
-      toast.className = 'pointer-events-auto bg-espresso text-cream rounded-2xl p-4 shadow-xl border border-mustard/40 flex items-start gap-3 transition-all duration-300 transform translate-y-2 opacity-0';
-      toast.innerHTML = `
-        <div class="w-9 h-9 rounded-xl bg-mustard text-espresso flex items-center justify-center font-bold shrink-0 text-base">✓</div>
-        <div class="flex-1 min-w-0">
-          <div class="text-xs font-bold text-mustard">ดาวน์โหลดสำเร็จทันที!</div>
-          <div class="text-sm font-semibold truncate">${title}</div>
-          <div class="text-[11px] text-cream/75 mt-0.5">${tip}</div>
-        </div>
-        <button onclick="this.parentElement.remove()" class="text-cream/60 hover:text-cream text-xs font-bold">✕</button>
-      `;
-      container.appendChild(toast);
+    function showToast(title, sub) {
+      const container = document.getElementById("toast-container");
+      const el = document.createElement("div");
+      el.className = "toast";
+      el.innerHTML = `<strong>${title}</strong><div style="color:var(--muted);margin-top:4px;font-size:0.8rem;">${sub}</div>`;
+      container.appendChild(el);
+      setTimeout(() => el.remove(), 4200);
+    }
 
-      requestAnimationFrame(() => {
-        toast.classList.remove('translate-y-2', 'opacity-0');
+    // เรนเดอร์ 6 การ์ดหมวดหมู่หลักบนหน้าแรก
+    const catGrid = document.getElementById("category-grid");
+    const bubble = document.getElementById("mascot-bubble");
+    const defaultBubbleText = "ขยับกล้อง 🎥 ดูสิ! ชี้หมวดสื่อด้านล่างเพื่อดูคำแนะนำได้เลย";
+
+    CATEGORIES.forEach(cat => {
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = "cat-card";
+      card.style.setProperty("--card-bg", cat.bg);
+      const count = ASSETS.filter(a => a.cat === cat.id).length;
+
+      card.innerHTML = `
+        <div>
+          <div class="cat-icon">${cat.icon}</div>
+          <h3 style="margin-top:12px;">${cat.title}</h3>
+          <p>${cat.desc}</p>
+        </div>
+        <div class="cat-meta">${count} ไฟล์ · เปิดหน้าหมวด →</div>
+      `;
+
+      card.addEventListener("mouseenter", () => {
+        bubble.textContent = cat.mascotMsg;
+        bubble.classList.add("active-msg");
       });
 
-      setTimeout(() => {
-        toast.classList.add('opacity-0', 'translate-y-2');
-        setTimeout(() => toast.remove(), 300);
-      }, 4200);
-    }
+      card.addEventListener("mouseleave", () => {
+        bubble.textContent = defaultBubbleText;
+        bubble.classList.remove("active-msg");
+      });
 
-    // -------------------------------------------------------------
-    // 6. RENDERING HOME PAGE & STARTER BUNDLES
-    // -------------------------------------------------------------
-    function renderHomeCategories() {
-      const grid = document.getElementById('categoryCardsGrid');
-      const quickPills = document.getElementById('quickCatPills');
+      card.addEventListener("click", () => openCategoryPage(cat.id));
+      catGrid.appendChild(card);
+    });
 
-      grid.innerHTML = CATEGORIES.map((cat) => `
-        <div
-          onclick="openCategory('${cat.id}')"
-          onmouseenter="updateMascotSpeech('หมวด ${cat.name}: ${cat.countText} พร้อมให้เลือก!')"
-          class="group cursor-pointer bg-cardbg rounded-[1.75rem] p-3.5 border border-sand hover:border-mustard shadow-soft hover:shadow-hover transition-all duration-200 flex flex-col justify-between"
-        >
-          <div class="${cat.bgClass} rounded-2xl h-32 flex flex-col items-center justify-center relative overflow-hidden">
-            <span class="text-5xl group-hover:scale-110 transition-transform duration-200">${cat.emoji}</span>
-            <span class="mt-2 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-cardbg/85 text-espresso">${cat.countText}</span>
-          </div>
-          <div class="pt-3 px-1 pb-1">
-            <div class="flex items-center justify-between">
-              <h3 class="font-bold text-base text-espresso group-hover:text-mustardDark transition-colors">${cat.name}</h3>
-              <span class="w-7 h-7 rounded-full bg-sand/70 group-hover:bg-mustard flex items-center justify-center text-xs font-bold text-espresso transition-colors">→</span>
-            </div>
-            <p class="text-[11px] text-cocoa mt-0.5 line-clamp-1">${cat.engName}</p>
-          </div>
-        </div>
-      `).join('');
+    // เรนเดอร์ชุดรวมแนะนำ
+    const bundlesList = document.getElementById("bundles-list");
+    BUNDLES.forEach(b => {
+      const item = document.createElement("div");
+      item.className = "bundle-card";
+      item.innerHTML = `
+        <span style="font-size:0.75rem;font-weight:800;background:#FFF1C2;padding:2px 8px;border-radius:999px;border:1.5px solid var(--border);">${b.tag}</span>
+        <h3>${b.title}</h3>
+        <p>${b.desc}</p>
+        <button class="btn btn-primary" style="width:100%;padding:8px 12px;font-size:0.84rem;" type="button">⬇ ดาวน์โหลดชุดนี้</button>
+      `;
+      item.querySelector("button").addEventListener("click", () => {
+        instantDownload(b.filename, `${b.title}\n${b.desc}\nสร้างจาก CutLab คลังสื่อตัดต่อ`);
+      });
+      bundlesList.appendChild(item);
+    });
 
-      quickPills.innerHTML = CATEGORIES.map((cat) => `
-        <button
-          onclick="openCategory('${cat.id}')"
-          id="quick-pill-${cat.id}"
-          class="px-3 py-1 rounded-full font-medium transition shrink-0 bg-cream hover:bg-mustard/40 text-espresso border border-sand"
-        >
-          ${cat.emoji} ${cat.name}
-        </button>
-      `).join('');
-    }
+    // เปิดหน้าแยกของแต่ละหมวด
+    let currentCatId = null;
 
-    function renderStarterBundles() {
-      const container = document.getElementById('starterBundlesList');
-      container.innerHTML = STARTER_BUNDLES.map((bun) => `
-        <div class="p-3.5 rounded-2xl bg-cream border border-sand hover:border-mustard/80 transition space-y-2.5">
-          <div class="flex items-start gap-3">
-            <div class="w-12 h-12 rounded-2xl ${bun.color} flex items-center justify-center text-2xl shrink-0">
-              ${bun.emoji}
-            </div>
-            <div class="min-w-0 flex-1">
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-cardbg border border-sand text-espresso">${bun.itemsCount}</span>
-              <h4 class="font-bold text-sm text-espresso mt-1 leading-snug">${bun.title}</h4>
-              <p class="text-[11px] text-cocoa mt-0.5 leading-relaxed">${bun.desc}</p>
-            </div>
-          </div>
-          <button
-            onclick='triggerInstantDownload(${JSON.stringify(bun).replace(/'/g, "&#39;")}, this)'
-            class="w-full py-2 px-3 rounded-xl bg-espresso hover:bg-mustard text-cream hover:text-espresso text-xs font-semibold transition flex items-center justify-center gap-1.5"
-          >
-            <span>📥 ดาวน์โหลดทั้งชุดทันที</span>
-          </button>
-        </div>
-      `).join('');
-    }
-
-    // -------------------------------------------------------------
-    // 7. NAVIGATION BETWEEN HOME & CATEGORY PAGES
-    // -------------------------------------------------------------
-    function navigateHome() {
-      currentCategory = null;
-      clearGlobalSearch(false);
-
-      document.getElementById('homeView').classList.remove('hidden');
-      document.getElementById('categoryView').classList.add('hidden');
-      document.getElementById('quickCatBar').classList.add('hidden');
-
-      const navHomeBtn = document.getElementById('navHomeBtn');
-      navHomeBtn.classList.add('bg-espresso', 'text-cream');
-      navHomeBtn.classList.remove('bg-sand', 'text-espresso');
-
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function openCategory(catId) {
-      const cat = CATEGORIES.find((c) => c.id === catId);
+    function openCategoryPage(catId) {
+      currentCatId = catId;
+      const cat = CATEGORIES.find(c => c.id === catId);
       if (!cat) return;
 
-      currentCategory = cat;
-      clearGlobalSearch(false);
-      activeFilters = { subCategories: [], formats: [], projectTypes: [] };
+      document.body.classList.add("subpage-mode");
+      document.getElementById("home-view").classList.add("hidden");
+      document.getElementById("category-view").classList.remove("hidden");
+      document.getElementById("back-home-btn").classList.remove("hidden");
 
-      // Toggle views
-      document.getElementById('homeView').classList.add('hidden');
-      document.getElementById('categoryView').classList.remove('hidden');
-      document.getElementById('quickCatBar').classList.remove('hidden');
+      document.getElementById("crumb-cat-name").textContent = cat.title;
+      document.getElementById("cat-page-title").textContent = `${cat.icon} ${cat.title}`;
+      document.getElementById("cat-page-desc").textContent = cat.desc;
 
-      const navHomeBtn = document.getElementById('navHomeBtn');
-      navHomeBtn.classList.remove('bg-espresso', 'text-cream');
-      navHomeBtn.classList.add('bg-sand', 'text-espresso');
+      const catItems = ASSETS.filter(a => a.cat === catId);
+      document.getElementById("cat-page-count").innerHTML = `<span class="stat-num">${catItems.length}</span><span class="stat-label">ไฟล์ในหมวดนี้</span>`;
 
-      // Highlight active quick pill
-      CATEGORIES.forEach((c) => {
-        const pill = document.getElementById(`quick-pill-${c.id}`);
-        if (pill) {
-          if (c.id === catId) {
-            pill.classList.add('bg-espresso', 'text-cream', 'border-espresso');
-            pill.classList.remove('bg-cream', 'text-espresso');
-          } else {
-            pill.classList.remove('bg-espresso', 'text-cream', 'border-espresso');
-            pill.classList.add('bg-cream', 'text-espresso');
-          }
-        }
-      });
+      // เติมตัวเลือกนามสกุลไฟล์ตามหมวด
+      const formatSelect = document.getElementById("filter-format");
+      const formats = [...new Set(catItems.map(i => i.format))];
+      formatSelect.innerHTML = `<option value="all">ทั้งหมด</option>` + formats.map(f => `<option value="${f}">${f}</option>`).join("");
+      document.getElementById("filter-usage").value = "all";
 
-      // Populate Category Header Banner
-      const banner = document.getElementById('catHeaderBanner');
-      banner.className = `rounded-[2rem] p-6 sm:p-8 border border-sand shadow-soft flex flex-col md:flex-row items-start md:items-center justify-between gap-6 transition-colors ${cat.bgClass}`;
-
-      document.getElementById('catBreadcrumbName').textContent = cat.name;
-      document.getElementById('catHeaderEmoji').textContent = cat.emoji;
-      document.getElementById('catHeaderTitle').textContent = `${cat.name} (${cat.engName})`;
-      document.getElementById('catHeaderDesc').textContent = cat.desc;
-      document.getElementById('catInteractiveTip').textContent = cat.tip;
-      document.getElementById('miniMascotBadge').textContent = cat.mascotBadge;
-      document.getElementById('miniMascotNote').textContent = cat.mascotQuote;
-
-      buildCategoryFilters(cat);
       renderCategoryAssets();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    // -------------------------------------------------------------
-    // 8. OBEC-STYLE SIDEBAR FILTERS
-    // -------------------------------------------------------------
-    function buildCategoryFilters(cat) {
-      // 1. Sub-categories
-      const subEl = document.getElementById('filterSubCategories');
-      subEl.innerHTML = cat.subCategories.map((sub) => `
-        <label class="flex items-center gap-2 cursor-pointer text-espresso/90 hover:text-espresso">
-          <input type="checkbox" value="${sub}" onchange="toggleFilter('subCategories', '${sub}')" class="rounded accent-espresso w-4 h-4" />
-          <span>${sub}</span>
-        </label>
-      `).join('');
-
-      // 2. Formats
-      const fmtEl = document.getElementById('filterFormats');
-      fmtEl.innerHTML = cat.formats.map((fmt) => `
-        <button
-          type="button"
-          data-fmt="${fmt}"
-          onclick="toggleFormatChip('${fmt}', this)"
-          class="px-2.5 py-1 rounded-lg border border-sand bg-cream text-espresso font-mono text-xs hover:border-mustard transition"
-        >
-          ${fmt}
-        </button>
-      `).join('');
-
-      // 3. Project Types
-      const projTypes = ['คอนเทนต์สั้น', 'สารคดี', 'ฝึกปฏิบัติ'];
-      const projEl = document.getElementById('filterProjectTypes');
-      projEl.innerHTML = projTypes.map((pt) => `
-        <label class="flex items-center gap-2 cursor-pointer text-espresso/90 hover:text-espresso">
-          <input type="checkbox" value="${pt}" onchange="toggleFilter('projectTypes', '${pt}')" class="rounded accent-espresso w-4 h-4" />
-          <span>${pt}</span>
-        </label>
-      `).join('');
-    }
-
-    function toggleFilter(group, value) {
-      const idx = activeFilters[group].indexOf(value);
-      if (idx === -1) activeFilters[group].push(value);
-      else activeFilters[group].splice(idx, 1);
-      renderCategoryAssets();
-    }
-
-    function toggleFormatChip(fmt, btn) {
-      toggleFilter('formats', fmt);
-      const isSelected = activeFilters.formats.includes(fmt);
-      if (isSelected) {
-        btn.classList.add('bg-espresso', 'text-cream', 'border-espresso');
-        btn.classList.remove('bg-cream', 'text-espresso');
-      } else {
-        btn.classList.remove('bg-espresso', 'text-cream', 'border-espresso');
-        btn.classList.add('bg-cream', 'text-espresso');
-      }
-    }
-
-    function resetCategoryFilters() {
-      if (!currentCategory) return;
-      activeFilters = { subCategories: [], formats: [], projectTypes: [] };
-      buildCategoryFilters(currentCategory);
-      renderCategoryAssets();
-    }
-
-    // -------------------------------------------------------------
-    // 9. SPECIALIZED INTERACTIVE ASSET CARDS PER CATEGORY
-    // -------------------------------------------------------------
-    function buildAssetPreviewHtml(item) {
-      // A. VIDEO & FOOTAGE: Hover-to-play + Transparency Checkerboard Toggle
-      if (item.category === 'video') {
-        const isGreen = item.videoTheme === 'greenscreen';
-        return `
-          <div class="relative h-40 rounded-2xl overflow-hidden border border-sand ${isGreen ? 'bg-emerald-500' : 'bg-espresso'} group/vid" id="vid-box-${item.id}">
-            <!-- Simulated Video Content -->
-            <div class="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
-              ${isGreen
-                ? `<div class="px-4 py-2 rounded-full bg-red-600 text-white font-bold text-xs shadow-md flex items-center gap-1.5 group-hover/vid:scale-110 transition-transform">
-                    <span>▶</span> <span>SUBSCRIBE</span>
-                   </div>
-                   <span class="text-[10px] text-white/90 mt-2 font-medium bg-black/25 px-2 py-0.5 rounded">Chroma Key Ready</span>`
-                : `<div class="w-12 h-12 rounded-full bg-mustard/90 text-espresso flex items-center justify-center text-lg font-bold shadow-md group-hover/vid:scale-110 transition-transform">▶</div>
-                   <span class="text-[11px] text-cream/90 mt-2 font-medium">ชี้เมาส์เพื่อเล่นตัวอย่างคลิป</span>`
-              }
-            </div>
-            <!-- Animated Playhead Scanbar on Hover -->
-            <div class="hidden group-hover/vid:block absolute inset-y-0 w-1 bg-mustard shadow-[0_0_12px_#F5B82E] animate-scan"></div>
-            <!-- Timecode Overlay -->
-            <div class="absolute bottom-2 left-2.5 text-[10px] font-mono bg-black/60 text-white px-2 py-0.5 rounded">
-              00:00:04:12
-            </div>
-            <!-- Checkerboard Transparency Toggle -->
-            <button
-              type="button"
-              onclick="toggleVideoCheckerboard('${item.id}', this)"
-              title="สลับพื้นหลังโปร่งใส"
-              class="absolute top-2 right-2 text-[10px] font-semibold bg-cardbg/90 hover:bg-cardbg text-espresso px-2 py-1 rounded-lg shadow-xs transition"
-            >
-              🏁 เช็ก Alpha
-            </button>
-          </div>
-        `;
-      }
-
-      // B. AUDIO & SFX: Interactive Playable Waveform Bars
-      if (item.category === 'audio') {
-        const heights = [35, 65, 90, 50, 80, 100, 70, 45, 85, 60, 40, 75, 95, 55, 35];
-        const barsHtml = heights.map((h, i) => `
-          <span
-            class="wave-bar w-1.5 rounded-full bg-espresso/80 transition-all"
-            style="height: ${h}%; animation-delay: ${i * 0.05}s;"
-          ></span>
-        `).join('');
-
-        return `
-          <div class="h-40 rounded-2xl bg-pastelYellow/70 border border-mustard/40 p-4 flex flex-col justify-between">
-            <div class="flex items-center justify-between text-[11px] font-semibold text-espresso/80">
-              <span>🔊 พรีวิวเสียงสังเคราะห์</span>
-              <span class="font-mono bg-cardbg px-2 py-0.5 rounded-md">${item.duration || '0:02'}</span>
-            </div>
-
-            <div class="flex items-center gap-3 my-auto">
-              <button
-                type="button"
-                onclick="playPreviewSound('${item.soundType}', this)"
-                class="w-11 h-11 rounded-full bg-espresso hover:bg-mustard text-cream hover:text-espresso flex items-center justify-center shadow-sm transition shrink-0 font-bold"
-                title="กดฟังเสียงตัวอย่าง"
-              >
-                ▶
-              </button>
-              <div class="flex-1 h-12 flex items-center justify-between gap-1 px-2">
-                ${barsHtml}
-              </div>
-            </div>
-
-            <div class="text-[11px] text-cocoa text-center">คลิกปุ่ม Play เพื่อทดสอบฟังเสียงจริง</div>
-          </div>
-        `;
-      }
-
-      // C. TEMPLATES & MOTION: Live Animated Title + Speed Switcher
-      if (item.category === 'templates') {
-        return `
-          <div class="h-40 rounded-2xl bg-espresso border border-sand p-3.5 flex flex-col justify-between relative overflow-hidden" id="motion-box-${item.id}">
-            <div class="flex items-center justify-between z-10">
-              <span class="text-[10px] text-cream/70 font-mono">MOTION PREVIEW</span>
-              <div class="flex items-center gap-1 bg-white/10 rounded-lg p-0.5 text-[10px]">
-                <button type="button" onclick="setMotionSpeed('${item.id}', '4s', this)" class="speed-btn px-1.5 py-0.5 rounded text-cream/70 hover:text-white">0.5x</button>
-                <button type="button" onclick="setMotionSpeed('${item.id}', '2.4s', this)" class="speed-btn px-1.5 py-0.5 rounded bg-mustard text-espresso font-bold">1x</button>
-                <button type="button" onclick="setMotionSpeed('${item.id}', '1.2s', this)" class="speed-btn px-1.5 py-0.5 rounded text-cream/70 hover:text-white">2x</button>
-              </div>
-            </div>
-
-            <!-- Animated Lower Third Pill -->
-            <div class="my-auto flex items-center justify-start pl-1">
-              <div class="motion-preview-active px-3.5 py-2 rounded-xl shadow-md flex items-center gap-2" style="background-color: ${item.motionColor};">
-                <span class="w-2 h-6 rounded-full bg-espresso"></span>
-                <span class="text-xs font-bold text-espresso whitespace-nowrap">${item.motionText}</span>
-              </div>
-            </div>
-
-            <div class="text-[10px] text-cream/60">ลองกดเปลี่ยนความเร็ว 0.5x / 1x / 2x ด้านบน</div>
-          </div>
-        `;
-      }
-
-      // D. IMAGES & GRAPHICS: Background Switcher (Light / Dark / Checkerboard)
-      if (item.category === 'graphics') {
-        let shapeSvg = '';
-        if (item.graphicShape === 'arrow') {
-          shapeSvg = `<svg class="w-20 h-20 text-mustard drop-shadow" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 46 C22 24, 38 18, 52 20"/><polyline points="42 12 53 20 43 30"/></svg>`;
-        } else if (item.graphicShape === 'recframe') {
-          shapeSvg = `<div class="w-32 h-20 border-2 border-red-500 rounded-lg p-2 flex items-start justify-between"><span class="text-[10px] font-bold text-red-500 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>REC</span><span class="text-[9px] font-mono text-red-500">4K</span></div>`;
-        } else {
-          shapeSvg = `<div class="px-4 py-2 rounded-2xl bg-mustard text-espresso font-bold text-sm shadow-md rotate-[-4deg] border-2 border-espresso">⭐ TOP PICK!</div>`;
-        }
-
-        return `
-          <div class="h-40 rounded-2xl checkerboard border border-sand p-3 flex flex-col justify-between relative transition-colors" id="gfx-box-${item.id}">
-            <div class="flex items-center justify-end gap-1 z-10">
-              <button type="button" onclick="setGraphicBg('${item.id}', 'light')" class="w-5 h-5 rounded-full bg-white border border-gray-300 shadow-xs" title="พื้นหลังสว่าง"></button>
-              <button type="button" onclick="setGraphicBg('${item.id}', 'dark')" class="w-5 h-5 rounded-full bg-espresso border border-gray-600 shadow-xs" title="พื้นหลังมืด"></button>
-              <button type="button" onclick="setGraphicBg('${item.id}', 'checker')" class="w-5 h-5 rounded-full checkerboard border border-gray-400 shadow-xs" title="พื้นหลังโปร่งใส"></button>
-            </div>
-            <div class="my-auto flex items-center justify-center">
-              ${shapeSvg}
-            </div>
-            <div class="text-[10px] font-semibold bg-cardbg/90 text-espresso px-2 py-0.5 rounded-md self-start">สลับสีพื้นหลังมุมขวาบน</div>
-          </div>
-        `;
-      }
-
-      // E. LUTS & OVERLAYS: Interactive Draggable Before/After Comparison Slider
-      if (item.category === 'luts') {
-        return `
-          <div class="h-40 rounded-2xl border border-sand relative overflow-hidden select-none group/lut" id="lut-box-${item.id}">
-            <!-- Base Scenic Gradient Scene (After LUT Applied) -->
-            <div class="absolute inset-0 flex items-end p-3" style="background: linear-gradient(135deg, #3b82f6 0%, #fbbf24 55%, #78350f 100%); filter: ${item.filterCss};">
-              <div class="w-full flex justify-between text-[10px] font-bold text-white drop-shadow">
-                <span></span>
-                <span class="bg-black/50 px-2 py-0.5 rounded">AFTER (LUT)</span>
-              </div>
-            </div>
-
-            <!-- Before Layer (Clipped by slider %) -->
-            <div id="lut-before-${item.id}" class="absolute inset-0 flex items-end p-3" style="background: linear-gradient(135deg, #64748b 0%, #cbd5e1 55%, #475569 100%); clip-path: inset(0 50% 0 0);">
-              <span class="text-[10px] font-bold text-white bg-black/50 px-2 py-0.5 rounded">BEFORE (LOG)</span>
-            </div>
-
-            <!-- Divider Line -->
-            <div id="lut-line-${item.id}" class="absolute inset-y-0 left-1/2 w-0.5 bg-white shadow-[0_0_8px_rgba(0,0,0,0.6)] pointer-events-none flex items-center justify-center">
-              <div class="w-6 h-6 rounded-full bg-mustard text-espresso border-2 border-white text-[10px] font-bold flex items-center justify-center shadow">↔</div>
-            </div>
-
-            <!-- Invisible Range Input for Smooth Mouse & Touch Dragging -->
-            <input
-              type="range"
-              min="5"
-              max="95"
-              value="50"
-              oninput="updateLutComparison('${item.id}', this.value)"
-              aria-label="ลากเทียบสี Before และ After"
-              class="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-20"
-            />
-          </div>
-        `;
-      }
-
-      // F. GUIDES & PRACTICE PACKS: Quick-View Worksheet Modal Trigger
-      return `
-        <div class="h-40 rounded-2xl bg-pastelPink/60 border border-sand p-4 flex flex-col justify-between">
-          <div class="flex items-start justify-between gap-2">
-            <span class="text-2xl">📄</span>
-            <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-cardbg text-espresso">${item.subCategory}</span>
-          </div>
-          <p class="text-xs text-espresso/85 line-clamp-2 leading-relaxed">
-            ${(item.guideContent || '').split('\n')[0]}
-          </p>
-          <button
-            type="button"
-            onclick="openGuideModal('${item.id}')"
-            class="w-full py-1.5 px-3 rounded-xl bg-cardbg hover:bg-espresso text-espresso hover:text-cream text-xs font-semibold border border-sand transition"
-          >
-            👁️ เปิดอ่านตัวอย่างใบงาน
-          </button>
-        </div>
-      `;
-    }
-
-    function createAssetCardHtml(item, showCategoryBadge = false) {
-      const catObj = CATEGORIES.find((c) => c.id === item.category);
-      const previewHtml = buildAssetPreviewHtml(item);
-
-      return `
-        <article class="asset-card bg-cardbg rounded-[1.75rem] border border-sand hover:border-mustard p-4 shadow-soft hover:shadow-hover transition-all flex flex-col justify-between gap-3.5">
-          <div class="space-y-3">
-            <!-- Top Meta Tags -->
-            <div class="flex items-center justify-between gap-2">
-              <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full ${catObj ? catObj.bgClass : 'bg-sand'} text-espresso">
-                ${showCategoryBadge && catObj ? `${catObj.emoji} ${catObj.name}` : item.badge}
-              </span>
-              <span class="text-[11px] font-mono font-semibold text-cocoa">${item.format} • ${item.size}</span>
-            </div>
-
-            <!-- Interactive Category-Specific Preview -->
-            ${previewHtml}
-
-            <!-- Title & Tags -->
-            <div>
-              <h3 class="font-bold text-base text-espresso leading-snug">${item.title}</h3>
-              <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
-                <span class="text-[11px] px-2 py-0.5 rounded-md bg-cream text-cocoa border border-sand">${item.subCategory}</span>
-                <span class="text-[11px] px-2 py-0.5 rounded-md bg-cream text-cocoa border border-sand">${item.projectType}</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Primary Instant Download CTA Button -->
-          <button
-            type="button"
-            onclick='triggerInstantDownload(${JSON.stringify(item).replace(/'/g, "&#39;")}, this)'
-            class="w-full py-2.5 px-4 rounded-2xl bg-espresso hover:bg-mustard text-cream hover:text-espresso font-semibold text-xs sm:text-sm transition-colors flex items-center justify-center gap-2 shadow-xs"
-          >
-            <span>📥 ดาวน์โหลดทันที</span>
-            <span class="opacity-75 font-mono text-[11px]">(${item.format})</span>
-          </button>
-        </article>
-      `;
+    function openHomePage() {
+      currentCatId = null;
+      document.body.classList.remove("subpage-mode");
+      document.getElementById("category-view").classList.add("hidden");
+      document.getElementById("home-view").classList.remove("hidden");
+      document.getElementById("back-home-btn").classList.add("hidden");
     }
 
     function renderCategoryAssets() {
-      if (!currentCategory) return;
+      const formatVal = document.getElementById("filter-format").value;
+      const usageVal = document.getElementById("filter-usage").value;
+      const queryVal = document.getElementById("global-search").value.trim().toLowerCase();
 
-      let list = ASSETS.filter((a) => a.category === currentCategory.id);
-
-      if (activeFilters.subCategories.length > 0) {
-        list = list.filter((a) => activeFilters.subCategories.includes(a.subCategory));
-      }
-      if (activeFilters.formats.length > 0) {
-        list = list.filter((a) => activeFilters.formats.includes(a.format));
-      }
-      if (activeFilters.projectTypes.length > 0) {
-        list = list.filter((a) => activeFilters.projectTypes.includes(a.projectType));
-      }
-
-      const sortBy = document.getElementById('sortSelect').value;
-      if (sortBy === 'name') {
-        list.sort((a, b) => a.title.localeCompare(b.title, 'th'));
-      } else if (sortBy === 'newest') {
-        list.reverse();
-      }
-
-      document.getElementById('filteredAssetCount').textContent = list.length;
-
-      const grid = document.getElementById('categoryAssetsGrid');
-      if (list.length === 0) {
-        grid.innerHTML = `
-          <div class="col-span-full bg-cardbg rounded-3xl border border-sand p-10 text-center space-y-3">
-            <div class="text-4xl">🔍</div>
-            <h3 class="font-bold text-base text-espresso">ไม่พบไฟล์ที่ตรงกับตัวกรองที่เลือก</h3>
-            <p class="text-xs text-cocoa">ลองกดล้างค่าตัวกรองเพื่อดูรายการสื่อทั้งหมดในหมวดนี้</p>
-            <button onclick="resetCategoryFilters()" class="px-5 py-2 rounded-full bg-mustard text-espresso text-xs font-bold">ล้างตัวกรองทั้งหมด</button>
-          </div>
-        `;
-        return;
-      }
-
-      grid.innerHTML = list.map((item) => createAssetCardHtml(item, false)).join('');
-    }
-
-    // -------------------------------------------------------------
-    // 10. INTERACTIVE PREVIEW WIDGET HELPERS
-    // -------------------------------------------------------------
-    function toggleVideoCheckerboard(id, btn) {
-      const box = document.getElementById(`vid-box-${id}`);
-      if (!box) return;
-      const isChecker = box.classList.contains('checkerboard');
-      if (isChecker) {
-        box.classList.remove('checkerboard');
-        box.classList.add('bg-emerald-500');
-        btn.textContent = '🏁 เช็ก Alpha';
-      } else {
-        box.classList.remove('bg-emerald-500', 'bg-espresso');
-        box.classList.add('checkerboard');
-        btn.textContent = '🟩 พื้นเขียว';
-      }
-    }
-
-    function setMotionSpeed(id, duration, clickedBtn) {
-      const box = document.getElementById(`motion-box-${id}`);
-      if (!box) return;
-      const animatedEl = box.querySelector('.motion-preview-active');
-      if (animatedEl) {
-        animatedEl.style.setProperty('--motion-dur', duration);
-      }
-      box.querySelectorAll('.speed-btn').forEach((b) => {
-        b.classList.remove('bg-mustard', 'text-espresso', 'font-bold');
-        b.classList.add('text-cream/70');
+      const filtered = ASSETS.filter(a => {
+        if (a.cat !== currentCatId) return false;
+        if (formatVal !== "all" && a.format !== formatVal) return false;
+        if (usageVal !== "all" && a.usage !== usageVal) return false;
+        if (queryVal && !a.title.toLowerCase().includes(queryVal)) return false;
+        return true;
       });
-      clickedBtn.classList.add('bg-mustard', 'text-espresso', 'font-bold');
-      clickedBtn.classList.remove('text-cream/70');
-    }
 
-    function setGraphicBg(id, mode) {
-      const box = document.getElementById(`gfx-box-${id}`);
-      if (!box) return;
-      box.classList.remove('checkerboard', 'bg-white', 'bg-espresso');
-      if (mode === 'light') box.classList.add('bg-white');
-      else if (mode === 'dark') box.classList.add('bg-espresso');
-      else box.classList.add('checkerboard');
-    }
-
-    function updateLutComparison(id, val) {
-      const beforeLayer = document.getElementById(`lut-before-${id}`);
-      const dividerLine = document.getElementById(`lut-line-${id}`);
-      if (beforeLayer) {
-        beforeLayer.style.clipPath = `inset(0 ${100 - val}% 0 0)`;
-      }
-      if (dividerLine) {
-        dividerLine.style.left = `${val}%`;
-      }
-    }
-
-    function openGuideModal(itemId) {
-      const item = ASSETS.find((a) => a.id === itemId);
-      if (!item) return;
-
-      document.getElementById('modalGuideTitle').textContent = item.title;
-      document.getElementById('modalGuideMeta').textContent = `${item.subCategory} • รูปแบบไฟล์ ${item.format} (${item.size})`;
-      document.getElementById('modalGuideBody').innerHTML = (item.guideContent || '')
-        .split('\n')
-        .map((line) => `<p>${line || '&nbsp;'}</p>`)
-        .join('');
-
-      const dlBtn = document.getElementById('modalGuideDownloadBtn');
-      dlBtn.onclick = () => triggerInstantDownload(item, dlBtn);
-
-      document.getElementById('guideModal').classList.remove('hidden');
-    }
-
-    function closeGuideModal() {
-      document.getElementById('guideModal').classList.add('hidden');
-    }
-
-    // -------------------------------------------------------------
-    // 11. LIVE GLOBAL SEARCH
-    // -------------------------------------------------------------
-    function handleGlobalSearch(query) {
-      const q = query.trim().toLowerCase();
-      const clearBtn = document.getElementById('clearSearchBtn');
-      const searchSec = document.getElementById('searchResultsSection');
-      const homeView = document.getElementById('homeView');
-      const catView = document.getElementById('categoryView');
-
-      if (!q) {
-        clearBtn.classList.add('hidden');
-        searchSec.classList.add('hidden');
-        if (currentCategory) catView.classList.remove('hidden');
-        else homeView.classList.remove('hidden');
+      const grid = document.getElementById("cat-assets-grid");
+      grid.innerHTML = "";
+      if (!filtered.length) {
+        grid.innerHTML = `<div class="feature-item"><strong>ไม่พบไฟล์ที่ตรงตัวกรอง</strong><span>ลองกดล้างตัวกรองเพื่อดูไฟล์ทั้งหมดในหมวด</span></div>`;
         return;
       }
+      filtered.forEach(asset => grid.appendChild(createAssetCard(asset)));
+    }
 
-      clearBtn.classList.remove('hidden');
-      homeView.classList.add('hidden');
-      catView.classList.add('hidden');
-      searchSec.classList.remove('hidden');
+    // เล่นเสียงสั้นๆ ด้วย Web Audio API สำหรับหมวดเสียง & เอฟเฟกต์
+    function playTone(freq = 440) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(freq, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(freq * 1.45, ctx.currentTime + 0.18);
+      gain.gain.setValueAtTime(0.18, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.26);
+    }
 
-      const matches = ASSETS.filter((item) =>
-        item.title.toLowerCase().includes(q) ||
-        item.subCategory.toLowerCase().includes(q) ||
-        item.format.toLowerCase().includes(q) ||
-        item.projectType.toLowerCase().includes(q)
-      );
+    function createAssetCard(asset) {
+      const card = document.createElement("article");
+      card.className = "asset-card";
 
-      document.getElementById('searchQueryLabel').textContent = query;
-      document.getElementById('searchCountLabel').textContent = matches.length;
+      const preview = document.createElement("div");
+      preview.className = "preview-box";
 
-      const grid = document.getElementById('searchResultsGrid');
-      if (matches.length === 0) {
-        grid.innerHTML = `
-          <div class="col-span-full bg-cardbg rounded-3xl border border-sand p-10 text-center space-y-2">
-            <div class="text-4xl">🧐</div>
-            <h3 class="font-bold text-espresso">ไม่พบสื่อที่ตรงกับ "${query}"</h3>
-            <p class="text-xs text-cocoa">ลองค้นหาคำอื่น เช่น whoosh, LUT, green screen, lower third หรือ คีย์ลัด</p>
+      if (asset.cat === "video") {
+        preview.innerHTML = `
+          <div style="text-align:center;padding:10px;">
+            <div style="font-weight:800;">▶ ${asset.title}</div>
+            <div style="font-size:0.78rem;opacity:0.85;margin-top:4px;">ชี้เมาส์หรือกดปุ่มเพื่อเช็ก Alpha</div>
+            <button type="button" class="mini-btn" style="margin-top:8px;">สลับพื้นหลัง Alpha</button>
           </div>
         `;
+        preview.querySelector("button").addEventListener("click", (e) => {
+          e.stopPropagation();
+          preview.classList.toggle("checkerboard");
+          preview.style.color = preview.classList.contains("checkerboard") ? "#2B2118" : "#FFFDF9";
+        });
+      } else if (asset.cat === "audio") {
+        const bars = (asset.wave || [40, 70, 50, 80, 45]).map(h => `<span style="display:inline-block;width:8px;height:${Math.max(18, h * 0.6)}px;background:#F5B82E;border-radius:4px;margin:0 2px;"></span>`).join("");
+        preview.innerHTML = `
+          <div style="text-align:center;">
+            <div style="margin-bottom:8px;">${bars}</div>
+            <button type="button" class="mini-btn">▶ ฟังตัวอย่างเสียง</button>
+          </div>
+        `;
+        preview.querySelector("button").addEventListener("click", () => playTone(asset.freq || 440));
+      } else if (asset.cat === "motion") {
+        preview.innerHTML = `
+          <div style="text-align:center;width:100%;padding:10px;">
+            <div class="motion-pill" style="display:inline-block;background:#F5B82E;color:#2B2118;font-weight:800;padding:6px 14px;border-radius:10px;transition:transform 0.5s ease;">${asset.label || "Title Motion"}</div>
+            <div style="margin-top:10px;display:flex;gap:6px;justify-content:center;">
+              <button type="button" class="mini-btn" data-spd="1s">0.5x</button>
+              <button type="button" class="mini-btn" data-spd="0.5s">1x</button>
+              <button type="button" class="mini-btn" data-spd="0.25s">2x</button>
+            </div>
+          </div>
+        `;
+        const pill = preview.querySelector(".motion-pill");
+        preview.querySelectorAll("[data-spd]").forEach(btn => {
+          btn.addEventListener("click", () => {
+            pill.style.transition = `transform ${btn.dataset.spd} ease`;
+            pill.style.transform = pill.style.transform === "scale(1.12)" ? "scale(1)" : "scale(1.12)";
+          });
+        });
+      } else if (asset.cat === "graphics") {
+        preview.classList.add("checkerboard");
+        preview.style.color = "#2B2118";
+        preview.innerHTML = `
+          <div style="font-size:1.3rem;font-weight:800;background:#FFFDF9;padding:8px 14px;border-radius:12px;border:2px solid #2B2118;">${asset.badge || "PNG"}</div>
+          <button type="button" class="mini-btn" style="position:absolute;top:8px;right:8px;">สลับ BG</button>
+        `;
+        const states = ["checkerboard", "dark-bg", "light-bg"];
+        let idx = 0;
+        preview.querySelector("button").addEventListener("click", () => {
+          idx = (idx + 1) % states.length;
+          preview.classList.remove("checkerboard");
+          if (states[idx] === "checkerboard") {
+            preview.classList.add("checkerboard");
+            preview.style.backgroundColor = "#fff";
+          } else if (states[idx] === "dark-bg") {
+            preview.style.backgroundColor = "#1f1d1b";
+          } else {
+            preview.style.backgroundColor = "#fffdf9";
+          }
+        });
+      } else if (asset.cat === "color") {
+        preview.innerHTML = `
+          <div class="ba-wrap">
+            <div class="ba-layer" style="background:#4b5563;">Before (ต้นฉบับ)</div>
+            <div class="ba-layer ba-after" style="background:${asset.afterTone};clip-path:inset(0 0 0 50%);">After (LUT)</div>
+            <input type="range" min="0" max="100" value="50" aria-label="เทียบ Before และ After" style="position:absolute;bottom:8px;left:10%;width:80%;z-index:2;cursor:pointer;" />
+          </div>
+        `;
+        const slider = preview.querySelector("input[type='range']");
+        const afterLayer = preview.querySelector(".ba-after");
+        slider.addEventListener("input", () => {
+          afterLayer.style.clipPath = `inset(0 0 0 ${slider.value}%)`;
+        });
       } else {
-        grid.innerHTML = matches.map((item) => createAssetCardHtml(item, true)).join('');
+        preview.style.background = "#FFF7E0";
+        preview.style.color = "#2B2118";
+        preview.innerHTML = `<button type="button" class="mini-btn">📄 เปิดอ่านตัวอย่างใบงาน</button>`;
+        preview.querySelector("button").addEventListener("click", () => {
+          document.getElementById("modal-title").textContent = asset.title;
+          document.getElementById("modal-body").textContent = asset.sheet || "";
+          document.getElementById("sheet-modal").classList.add("open");
+        });
       }
+
+      const fileName = `${asset.title.replace(/\s+/g, "_")}${asset.format.toLowerCase()}.txt`;
+      const dlBtn = document.createElement("button");
+      dlBtn.type = "button";
+      dlBtn.className = "btn btn-primary";
+      dlBtn.style.width = "100%";
+      dlBtn.textContent = `⬇ ดาวน์โหลดทันที (${asset.format} · ${asset.size})`;
+      dlBtn.addEventListener("click", () => {
+        instantDownload(fileName, `ไฟล์ตัวอย่างจาก CutLab: ${asset.title}\nรูปแบบ: ${asset.format}\nหมวด: ${asset.usage}`);
+      });
+
+      card.appendChild(preview);
+      const info = document.createElement("div");
+      info.innerHTML = `<h3 class="asset-title">${asset.title}</h3><div class="asset-meta">${asset.usage} · ${asset.format}</div>`;
+      card.appendChild(info);
+      card.appendChild(dlBtn);
+
+      return card;
     }
 
-    function clearGlobalSearch(restoreView = true) {
-      const input = document.getElementById('globalSearchInput');
-      input.value = '';
-      document.getElementById('clearSearchBtn').classList.add('hidden');
-      document.getElementById('searchResultsSection').classList.add('hidden');
-      if (restoreView) {
-        if (currentCategory) document.getElementById('categoryView').classList.remove('hidden');
-        else document.getElementById('homeView').classList.remove('hidden');
+    // ค้นหาจาก Navbar
+    const searchInput = document.getElementById("global-search");
+    searchInput.addEventListener("input", () => {
+      const q = searchInput.value.trim().toLowerCase();
+      if (!document.getElementById("category-view").classList.contains("hidden")) {
+        renderCategoryAssets();
+        return;
       }
-    }
-
-    // -------------------------------------------------------------
-    // 12. INITIALIZE ON WINDOW LOAD
-    // -------------------------------------------------------------
-    window.addEventListener('DOMContentLoaded', () => {
-      renderHomeCategories();
-      renderStarterBundles();
+      const sec = document.getElementById("search-results-section");
+      const grid = document.getElementById("search-results-grid");
+      if (!q) {
+        sec.classList.add("hidden");
+        return;
+      }
+      sec.classList.remove("hidden");
+      const matches = ASSETS.filter(a => a.title.toLowerCase().includes(q) || a.format.toLowerCase().includes(q) || a.usage.toLowerCase().includes(q));
+      grid.innerHTML = "";
+      if (!matches.length) {
+        grid.innerHTML = `<div class="feature-item"><strong>ไม่พบไฟล์ "${searchInput.value}"</strong><span>ลองค้นคำอื่น เช่น whoosh, LUT, PNG หรือ คีย์ลัด</span></div>`;
+      } else {
+        matches.forEach(m => grid.appendChild(createAssetCard(m)));
+      }
     });
+
+    document.getElementById("clear-search-btn").addEventListener("click", () => {
+      searchInput.value = "";
+      searchInput.dispatchEvent(new Event("input"));
+    });
+
+    // ปุ่มนำทางและตัวกรอง
+    document.getElementById("home-btn").addEventListener("click", openHomePage);
+    document.getElementById("back-home-btn").addEventListener("click", openHomePage);
+    document.getElementById("crumb-home").addEventListener("click", openHomePage);
+    document.getElementById("explore-btn").addEventListener("click", () => {
+      document.getElementById("categories-section").scrollIntoView({ behavior: "smooth" });
+    });
+    document.getElementById("scroll-bundles-btn").addEventListener("click", () => {
+      openHomePage();
+      document.getElementById("bundles-panel").scrollIntoView({ behavior: "smooth" });
+    });
+    document.getElementById("filter-format").addEventListener("change", renderCategoryAssets);
+    document.getElementById("filter-usage").addEventListener("change", renderCategoryAssets);
+    document.getElementById("reset-filters-btn").addEventListener("click", () => {
+      document.getElementById("filter-format").value = "all";
+      document.getElementById("filter-usage").value = "all";
+      renderCategoryAssets();
+    });
+    document.getElementById("close-modal-btn").addEventListener("click", () => {
+      document.getElementById("sheet-modal").classList.remove("open");
+    });
+
+    // เคอร์เซอร์ Emoji รูปกล้อง + ตัวการ์ตูนกลอกตาตามในหน้าแรก
+    const cameraCursor = document.getElementById("camera-cursor");
+    const pupils = document.querySelectorAll(".pupil");
+    let camX = window.innerWidth / 2;
+    let camY = window.innerHeight / 2;
+
+    function updateCameraAndEyes() {
+      cameraCursor.style.left = `${camX}px`;
+      cameraCursor.style.top = `${camY}px`;
+
+      pupils.forEach(pupil => {
+        const baseX = Number(pupil.getAttribute("cx"));
+        const baseY = Number(pupil.getAttribute("cy"));
+        const svg = pupil.ownerSVGElement;
+        const pt = svg.createSVGPoint();
+        pt.x = baseX;
+        pt.y = baseY;
+        const screenPt = pt.matrixTransform(svg.getScreenCTM());
+
+        const dx = camX - screenPt.x;
+        const dy = camY - screenPt.y;
+        const angle = Math.atan2(dy, dx);
+        const dist = Math.min(7, Math.hypot(dx, dy) * 0.04);
+
+        pupil.setAttribute("transform", `translate(${(Math.cos(angle) * dist).toFixed(2)}, ${(Math.sin(angle) * dist).toFixed(2)})`);
+      });
+    }
+
+    window.addEventListener("mousemove", (e) => {
+      camX = e.clientX;
+      camY = e.clientY;
+      requestAnimationFrame(updateCameraAndEyes);
+    });
+
+    window.addEventListener("mousedown", () => cameraCursor.classList.add("is-clicking"));
+    window.addEventListener("mouseup", () => cameraCursor.classList.remove("is-clicking"));
+    updateCameraAndEyes();
   </script>
 </body>
 </html>
